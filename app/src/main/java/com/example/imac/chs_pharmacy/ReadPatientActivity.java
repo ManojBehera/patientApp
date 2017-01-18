@@ -2,7 +2,6 @@ package com.example.imac.chs_pharmacy;
 
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.ViewGroup;
 import android.widget.TextView;
 import android.content.Intent;
@@ -28,7 +27,8 @@ public class ReadPatientActivity extends AppCompatActivity {
         String message = intent.getStringExtra(MainActivity.EXTRA_MESSAGE);
         TextView textView = new TextView(this);
         textView.setTextSize(40);
-        textView.setText(message);
+        //putting the message (the id) into the view. we want something from the xml in the view.
+//        textView.setText(message);
 
         ViewGroup layout = (ViewGroup) findViewById(R.id.activity_read_patient);
         layout.addView(textView);
@@ -52,15 +52,25 @@ public class ReadPatientActivity extends AppCompatActivity {
                 Node node = nList.item(i);
                 if (node.getNodeType() == Node.ELEMENT_NODE) {
                     Element element2 = (Element) node;
-                    tv2.setText(tv2.getText()+"\nName : " + getValue("Name", element2)+"\n");
-                    tv2.setText(tv2.getText()+"Address : " + getValue("Address", element2)+"\n");
 
+                    //when things are red, make sure it is imported or defined in its own function
+//                    tv2.setText(tv2.getText()+"\nName : " + getValue("Name", element2)+"\n");
+//                    tv2.setText(tv2.getText()+"Address : " + getValue("Address", element2)+"\n");
+                    textView.setText( getValue("Name", element2));
                 }
             }
 
         } catch (Exception e) {e.printStackTrace();}
 
+
     }
+
+    private static String getValue(String tag, Element element) {
+        NodeList nodeList = element.getElementsByTagName(tag).item(0).getChildNodes();
+        Node node = nodeList.item(0);
+        return node.getNodeValue();
+    }
+
 
     //need to take the number and find an xml file matching the number
 
