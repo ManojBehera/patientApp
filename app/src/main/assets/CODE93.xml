@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+<Prescription>
+    <PrescriptionID>06123456</PrescriptionID>
+    <PatientID>TESTP</PatientID>
+    <Quantity>30.0000</Quantity>
+    <Refills>3</Refills>
+    <Name>TEST, PATIENT</Name>
+    <Address>123 TEST STREET</Address>
+    <City>SPARTANBURG</City>
+    <State>SC</State>
+    <Zip>29306</Zip>
+    <Label>L1</Label>
+    <DosageText>USE AS DIRECTED</DosageText>
+    <NDC>123456789</NDC>
+    <HOAList>
+        <HOA>0800</HOA>
+        <HOA>NOON</HOA>
+        <HOA>1700</HOA>
+    </HOAList>
+</Prescription>

@@ -24,11 +24,12 @@ public class ReadPatientActivity extends AppCompatActivity {
         setContentView(R.layout.activity_read_patient);
 
         Intent intent = getIntent();
+
+        //this is the code scanned
         String message = intent.getStringExtra(MainActivity.EXTRA_MESSAGE);
         TextView textView = new TextView(this);
         textView.setTextSize(40);
-        //putting the message (the id) into the view. we want something from the xml in the view.
-//        textView.setText(message);
+
 
         ViewGroup layout = (ViewGroup) findViewById(R.id.activity_read_patient);
         layout.addView(textView);
@@ -52,10 +53,6 @@ public class ReadPatientActivity extends AppCompatActivity {
                 Node node = nList.item(i);
                 if (node.getNodeType() == Node.ELEMENT_NODE) {
                     Element element2 = (Element) node;
-
-                    //when things are red, make sure it is imported or defined in its own function
-//                    tv2.setText(tv2.getText()+"\nName : " + getValue("Name", element2)+"\n");
-//                    tv2.setText(tv2.getText()+"Address : " + getValue("Address", element2)+"\n");
                     textView.setText( getValue("Name", element2));
                 }
             }
