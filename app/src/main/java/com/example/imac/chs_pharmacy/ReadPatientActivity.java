@@ -2,17 +2,16 @@ package com.example.imac.chs_pharmacy;
 
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.TextView;
 import android.content.Intent;
-
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
-
 import java.io.InputStream;
-
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
@@ -29,6 +28,15 @@ public class ReadPatientActivity extends AppCompatActivity {
         String message = intent.getStringExtra(MainActivity.EXTRA_MESSAGE);
         TextView textView = new TextView(this);
         textView.setTextSize(40);
+
+        Button btn = (Button) findViewById(R.id.bleButton);
+        btn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(ReadPatientActivity.this, DetectBleActivity.class);
+                startActivity(intent);
+            }
+        });
 
 
         ViewGroup layout = (ViewGroup) findViewById(R.id.activity_read_patient);
@@ -68,8 +76,14 @@ public class ReadPatientActivity extends AppCompatActivity {
         return node.getNodeValue();
     }
 
+    //we want this button to go to the new bluetooth view
+    public void findBle(View view) {
+        Intent intent = new Intent(this, ScanningActivity.class);
+        startActivity(intent);
+    }
 
-    //need to take the number and find an xml file matching the number
+
+
 
 }
 

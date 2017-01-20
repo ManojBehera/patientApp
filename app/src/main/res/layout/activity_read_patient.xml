@@ -16,4 +16,14 @@
         android:layout_height="wrap_content"
         android:layout_alignParentStart="true" />
 
+    <Button
+        android:text="Find BLE Devices"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="55dp"
+        android:id="@+id/bleButton"
+        android:onClick="findBle"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true" />
+
 </RelativeLayout>
