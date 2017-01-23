@@ -15,6 +15,8 @@ import java.io.InputStream;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
+//need to create a model based on the xml. the pharmicist should be able to overwrite everything right now and save the updated data to the model
+
 public class ReadPatientActivity extends AppCompatActivity {
     TextView tv2;
     @Override
