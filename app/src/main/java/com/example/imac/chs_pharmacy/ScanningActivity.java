@@ -233,6 +233,7 @@ public class ScanningActivity extends ListActivity {
 
 
     /* user has selected one of the device */
+    //instead of going to the peripheral activity, go to a new one displaying pateint info and a button to link
     @Override
     protected void onListItemClick(ListView l, View v, int position, long id) {
         final BluetoothDevice device = mDevicesListAdapter.getDevice(position);

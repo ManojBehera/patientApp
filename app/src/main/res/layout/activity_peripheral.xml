@@ -12,7 +12,8 @@
         android:id="@+id/tableLayout1"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:layout_alignParentTop="true" >
+        android:layout_alignParentTop="true"
+        android:layout_alignParentStart="true">
 
         <TableRow
             android:id="@+id/tableRow1"
@@ -103,17 +104,5 @@
                 android:textStyle="italic" />
         </TableRow>
     </TableLayout>
-
-    <ListView
-        android:id="@+id/listView"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_alignLeft="@+id/tableLayout1"
-        android:layout_below="@+id/tableLayout1"
-        android:layout_marginTop="20dp"
-        android:padding="2dp"
-        android:background="#eee" >
-
-    </ListView>
 
 </RelativeLayout>

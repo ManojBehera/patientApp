@@ -10,4 +10,21 @@
     <string name="unknown_device">Unknown device</string>
     <string name="title_activity_peripheral">Peripheral</string>
 
+
+    <!--values for the patient view-->
+    <string name="patient_name">Patient Name</string>
+    <string name="rxid">Prescription ID</string>
+    <string name="confirm_patient">Confirm Data</string>
+    <string name="patient_id">Patient ID</string>
+    <string name="quantity">Quantity</string>
+    <string name="refills">Refills</string>
+    <string name="address">Address</string>
+    <string name="city">City</string>
+    <string name="state">State</string>
+    <string name="zip">Zip</string>
+    <string name="label">Label</string>
+    <string name="dosage_text">Dosage</string>
+    <string name="ndc">NDC</string>
+    <string name="find_ble">Detect Caps</string>
+
 </resources>
