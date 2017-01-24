@@ -25,7 +25,7 @@ public class CharacteristicDetailsAdapter extends BaseAdapter {
 	private String mLastUpdateTime = "";
 	private boolean mNotificationEnabled = false;
 	
-	public CharacteristicDetailsAdapter(PeripheralActivity parent, BleWrapper ble) {
+	public CharacteristicDetailsAdapter(LinkCapActivity parent, BleWrapper ble) {
 		super();
 		mBleWrapper = ble;
 		mInflater = parent.getLayoutInflater();

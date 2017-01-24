@@ -53,7 +53,7 @@ public class ReadPatientActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(ReadPatientActivity.this, DetectBleActivity.class);
-                startActivity(intent);
+;                startActivity(intent);
             }
         });
 
@@ -124,13 +124,7 @@ public class ReadPatientActivity extends AppCompatActivity {
 
     //we want this button to go to the new bluetooth view
     public void findBle(View view) {
-        Intent intent = new Intent(this, ScanningActivity.class);
-        startActivity(intent);
-    }
 
-    //on click this button needs to save new data to the model
-    public void confirmData(View view) {
-        //check and see if the text fields are the same as existing model data
 
         EditText rxid = (EditText) findViewById(R.id.textView1);
         String rxidString = rxid.getText().toString();
@@ -160,6 +154,46 @@ public class ReadPatientActivity extends AppCompatActivity {
         //construct the model with data from the xml file
 //        Patient patient = new Patient(name, patientid, rxid, address, city, state);
         Patient patient = new Patient(nameString, rxidString, patIdString, quantityString, refillString, addressString, cityString, stateString, zipString, labelString, dosageString, ndcString);
+        Intent intent = new Intent(this, ScanningActivity.class);
+        startActivity(intent);
+    }
+
+    //on click this button needs to save new data to the model
+    public void confirmData(View view) {
+        //check and see if the text fields are the same as existing model data
+//
+//        EditText rxid = (EditText) findViewById(R.id.textView1);
+//        String rxidString = rxid.getText().toString();
+//        EditText name = (EditText) findViewById(R.id.textView2);
+//        String nameString = name.getText().toString();
+//        EditText patientID = (EditText) findViewById(R.id.textView3);
+//        String patIdString = patientID.getText().toString();
+//        EditText quantity = (EditText) findViewById(R.id.textView4);
+//        String quantityString = quantity.getText().toString();
+//        EditText refills = (EditText) findViewById(R.id.textView5);
+//        String refillString = refills.getText().toString();
+//        EditText address = (EditText) findViewById(R.id.textView6);
+//        String addressString = address.getText().toString();
+//        EditText city = (EditText) findViewById(R.id.textView7);
+//        String cityString = city.getText().toString();
+//        EditText state = (EditText) findViewById(R.id.textView8);
+//        String stateString = state.getText().toString();
+//        EditText zip = (EditText) findViewById(R.id.textView9);
+//        String zipString = zip.getText().toString();
+//        EditText label = (EditText) findViewById(R.id.textView10);
+//        String labelString = label.getText().toString();
+//        EditText dosage = (EditText) findViewById(R.id.textView11);
+//        String dosageString = dosage.getText().toString();
+//        EditText ndc = (EditText) findViewById(R.id.textView12);
+//        String ndcString = ndc.getText().toString();
+//
+//        //construct the model with data from the xml file
+////        Patient patient = new Patient(name, patientid, rxid, address, city, state);
+//        Patient patient = new Patient(nameString, rxidString, patIdString, quantityString, refillString, addressString, cityString, stateString, zipString, labelString, dosageString, ndcString);
+
+        //now pass patient data
+//        Intent intent = new Intent(this, ScanningActivity.class);
+//        startActivity(intent);
 
     }
 

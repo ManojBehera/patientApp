@@ -27,4 +27,8 @@
     <string name="ndc">NDC</string>
     <string name="find_ble">Detect Caps</string>
 
+    <string name="bleAddress">BLE Address</string>
+    <string name="bleName">BLE name</string>
+    <string name="bleRSSI">ble RSSI</string>
+
 </resources>
