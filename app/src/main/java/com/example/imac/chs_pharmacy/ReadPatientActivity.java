@@ -2,14 +2,12 @@ package com.example.imac.chs_pharmacy;
 
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.content.Intent;
-
-import com.example.imac.chs_pharmacy.PatientClass.Patient;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -22,6 +20,7 @@ import javax.xml.parsers.DocumentBuilderFactory;
 //need to create a model based on the xml. the pharmicist should be able to overwrite everything right now and save the updated data to the model
 
 public class ReadPatientActivity extends AppCompatActivity {
+    private static final String TAG = "Patient";
     TextView tv;
     TextView tv2;
     TextView tv3;
@@ -152,9 +151,22 @@ public class ReadPatientActivity extends AppCompatActivity {
         String ndcString = ndc.getText().toString();
 
         //construct the model with data from the xml file
-//        Patient patient = new Patient(name, patientid, rxid, address, city, state);
-        Patient patient = new Patient(nameString, rxidString, patIdString, quantityString, refillString, addressString, cityString, stateString, zipString, labelString, dosageString, ndcString);
+
+//        Patient patient = new Patient(nameString, rxidString, patIdString, quantityString, refillString, addressString, cityString, stateString, zipString, labelString, dosageString, ndcString);
+
+
+
+//        Patient p = (Patient)getApplication();
+        Log.d(TAG, nameString);
+//        Patient.patient_name = nameString;
+//        p.setPatientName(nameString);
+//        ((Patient) this.getApplication()).setPatientName(nameString);
+        final Patient p = (Patient) getApplicationContext();
+        p.setPatientName(nameString);
+
         Intent intent = new Intent(this, ScanningActivity.class);
+//        intent.putExtra("Patient", patient);
+//        Log.d(TAG, nameString);
         startActivity(intent);
     }
 
@@ -191,9 +203,6 @@ public class ReadPatientActivity extends AppCompatActivity {
 ////        Patient patient = new Patient(name, patientid, rxid, address, city, state);
 //        Patient patient = new Patient(nameString, rxidString, patIdString, quantityString, refillString, addressString, cityString, stateString, zipString, labelString, dosageString, ndcString);
 
-        //now pass patient data
-//        Intent intent = new Intent(this, ScanningActivity.class);
-//        startActivity(intent);
 
     }
 

@@ -8,13 +8,11 @@ import android.bluetooth.BluetoothDevice;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.IntentSender;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
-import android.provider.Settings;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -33,8 +31,6 @@ import com.google.android.gms.location.LocationSettingsRequest;
 import com.google.android.gms.location.LocationSettingsResult;
 import com.google.android.gms.location.LocationSettingsStatusCodes;
 
-import static android.content.ContentValues.TAG;
-
 public class ScanningActivity extends ListActivity {
 	
 	private static final long SCANNING_TIMEOUT = 5 * 1000; /* 5 seconds */
@@ -48,10 +44,20 @@ public class ScanningActivity extends ListActivity {
     public static final long UPDATE_INTERVAL_IN_MILLISECONDS = 10000;
     protected LocationSettingsRequest mLocationSettingsRequest;
 //    protected Location mCurrentLocation;
+private static final String TAG = "Patient";
+
+    public String patientName;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+//        Bundle b = getIntent().getExtras();
+//        Patient patient = b.getParcelable("Patient");
+//        Patient patient = getIntent().getExtras().getParcelable("Patient");
+//        Patient patient = getIntent().getExtras().get("Patient");
+//        patientName = patient.getPatientName();
+//        Log.d(TAG, patientName);
 
 
 
@@ -243,6 +249,8 @@ public class ScanningActivity extends ListActivity {
         intent.putExtra(LinkCapActivity.EXTRAS_DEVICE_NAME, device.getName());
         intent.putExtra(LinkCapActivity.EXTRAS_DEVICE_ADDRESS, device.getAddress());
         intent.putExtra(LinkCapActivity.EXTRAS_DEVICE_RSSI, mDevicesListAdapter.getRssi(position));
+//        intent.putExtra("patientname", LinkCapActivity.patientName);
+        startActivity(intent);
 
         if (mScanning) {
             mScanning = false;

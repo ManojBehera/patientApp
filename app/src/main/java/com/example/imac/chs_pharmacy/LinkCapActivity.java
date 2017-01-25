@@ -14,8 +14,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 
-import com.example.imac.chs_pharmacy.PatientClass.Patient;
-
 import java.util.List;
 import java.util.Locale;
 
@@ -25,12 +23,16 @@ public class LinkCapActivity extends AppCompatActivity implements BleWrapperUiCa
     public static final String EXTRAS_DEVICE_RSSI    = "BLE_DEVICE_RSSI";
 
 
+
+
     TextView tv;
     TextView tv2;
     TextView tv3;
     TextView tv4;
     TextView tv5;
     TextView tv6;
+
+
 
     public enum ListType {
         GATT_SERVICES,
@@ -129,25 +131,22 @@ public class LinkCapActivity extends AppCompatActivity implements BleWrapperUiCa
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_link_cap);
 
+        //need to get the global patient data
 
+        Patient p = (Patient)getApplication();
+        String patName = p.getPatientName();
+//        Log.d(TAG, patName);
 
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        mListViewHeader = (View) getLayoutInflater().inflate(R.layout.peripheral_list_services_header, null, false);
 
         connectViewsVariables();
-
-        Patient currentPatient = ((Patient)getApplicationContext());
-        String patName = currentPatient.getPatientData();
-
-
-        Log.d(TAG, patName);
 
         final Intent intent = getIntent();
         mDeviceName = intent.getStringExtra(EXTRAS_DEVICE_NAME);
         mDeviceAddress = intent.getStringExtra(EXTRAS_DEVICE_ADDRESS);
         mDeviceRSSI = intent.getIntExtra(EXTRAS_DEVICE_RSSI, 0) + " db";
 
-//        tv2.setText( mDeviceName);
+
+        tv2.setText(patName);
 //        tv.setText( getValue("PrescriptionID", element2));
 //        tv3.setText( getValue("PatientID", element2));
 //        tv4.setText( mDeviceName);
@@ -269,12 +268,12 @@ public class LinkCapActivity extends AppCompatActivity implements BleWrapperUiCa
     }
 
     private void connectViewsVariables() {
-        mDeviceNameView = (TextView) findViewById(R.id.peripheral_name);
-        mDeviceAddressView = (TextView) findViewById(R.id.peripheral_address);
-        mDeviceRssiView = (TextView) findViewById(R.id.peripheral_rssi);
-        mDeviceStatus = (TextView) findViewById(R.id.peripheral_status);
-//        mListView = (ListView) findViewById(R.id.listView);
-        mHeaderTitle = (TextView) mListViewHeader.findViewById(R.id.peripheral_service_list_title);
-        mHeaderBackButton = (TextView) mListViewHeader.findViewById(R.id.peripheral_list_service_back);
+//        mDeviceNameView = (TextView) findViewById(R.id.peripheral_name);
+//        mDeviceAddressView = (TextView) findViewById(R.id.peripheral_address);
+//        mDeviceRssiView = (TextView) findViewById(R.id.peripheral_rssi);
+//        mDeviceStatus = (TextView) findViewById(R.id.peripheral_status);
+////        mListView = (ListView) findViewById(R.id.listView);
+//        mHeaderTitle = (TextView) mListViewHeader.findViewById(R.id.peripheral_service_list_title);
+//        mHeaderBackButton = (TextView) mListViewHeader.findViewById(R.id.peripheral_list_service_back);
     }
 }

@@ -1,9 +1,11 @@
-package com.example.imac.chs_pharmacy.PatientClass;
+package com.example.imac.chs_pharmacy;
 
 
 //this is the model to hold the patient data
 
 import android.app.Application;
+import android.os.Parcel;
+import android.os.Parcelable;
 import android.util.Log;
 
 
@@ -24,7 +26,9 @@ public class Patient extends Application {
     public String ndc;
     private static final String TAG = "Patient";
 
-
+    //default constructor
+    public Patient(){
+    }
 
     //create the constructor
         public Patient(String startPatientName, String startPrescriptionID, String startPatientID, String startQuantity, String startRefills, String startAddress, String startCity, String startState, String startZip, String startLabel, String startDosage, String startNdc) {
@@ -45,6 +49,7 @@ public class Patient extends Application {
              //getting the updated values from pharmacist
              Log.d(TAG, patient_name);
 
+
     }
 
     //need to create methods to set the patient information
@@ -53,13 +58,16 @@ public class Patient extends Application {
         this.patient_id = patientID;
     }
 
-    public void setPatient_name( String patientName ){
 
+    public void setPatientName( String patientName ){
+        Log.d(TAG, "setting patient name");
         this.patient_name = patientName;
     }
 
-    public String getPatientData( ){
-        return patient_id;
+
+    public String getPatientName( ){
+        Log.d(TAG, "getting patient name");
+        return patient_name;
 
     }
 
@@ -86,5 +94,7 @@ public class Patient extends Application {
         this.state = stateName;
 
     }
+
+
 
 }
