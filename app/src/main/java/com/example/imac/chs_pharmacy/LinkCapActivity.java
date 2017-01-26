@@ -23,7 +23,7 @@ public class LinkCapActivity extends AppCompatActivity implements BleWrapperUiCa
     public static final String EXTRAS_DEVICE_RSSI    = "BLE_DEVICE_RSSI";
 
 
-    TextView tv;
+    TextView tv1;
     TextView tv2;
     TextView tv3;
     TextView tv4;
@@ -80,8 +80,8 @@ public class LinkCapActivity extends AppCompatActivity implements BleWrapperUiCa
         tv2.setText(patName);
 
 
-        tv3=(TextView)findViewById(R.id.textView3);
-        tv3.setText(rxid);
+        tv1=(TextView)findViewById(R.id.textView1);
+        tv1.setText(rxid);
 
         tv4=(TextView)findViewById(R.id.textView4);
         tv4.setText(mDeviceName);
@@ -96,6 +96,7 @@ public class LinkCapActivity extends AppCompatActivity implements BleWrapperUiCa
 
 
     public void confirmData(View view) {
+        //here we just need to write to the correct characteristics
 
     }
 
