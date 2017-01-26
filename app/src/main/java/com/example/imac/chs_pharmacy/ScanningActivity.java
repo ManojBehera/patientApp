@@ -46,7 +46,6 @@ public class ScanningActivity extends ListActivity {
 //    protected Location mCurrentLocation;
 private static final String TAG = "Patient";
 
-    public String patientName;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -58,7 +57,6 @@ private static final String TAG = "Patient";
 //        Patient patient = getIntent().getExtras().get("Patient");
 //        patientName = patient.getPatientName();
 //        Log.d(TAG, patientName);
-
 
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
@@ -95,148 +93,6 @@ private static final String TAG = "Patient";
 
     }
 
-        @Override
-        public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
-            switch (requestCode) {
-                case PERMISSION_REQUEST_COARSE_LOCATION: {
-                    if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                        Log.d(TAG, "coarse granted");
-                    }
-                    else {
-                        final AlertDialog.Builder builder = new AlertDialog.Builder(this);
-                        builder.setTitle("funcitionality limited");
-                        builder.setMessage("location hasn't been granted");
-                        builder.setPositiveButton(android.R.string.ok, null);
-                        builder.setOnDismissListener(new DialogInterface.OnDismissListener(){
-                            @Override
-                            public void onDismiss(DialogInterface dialog) {
-
-                            }
-                        });
-                        builder.show();
-                    }
-                    return;
-                }
-            }
-        }
-
-
-
-    private void displayLocationSettingsRequest(Context context) {
-        GoogleApiClient googleApiClient = new GoogleApiClient.Builder(context)
-                .addApi(LocationServices.API).build();
-        googleApiClient.connect();
-
-        LocationRequest locationRequest = LocationRequest.create();
-        locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
-        locationRequest.setInterval(10000);
-        locationRequest.setFastestInterval(10000 / 2);
-
-        LocationSettingsRequest.Builder builder = new LocationSettingsRequest.Builder().addLocationRequest(locationRequest);
-        builder.setAlwaysShow(true);
-
-        PendingResult<LocationSettingsResult> result = LocationServices.SettingsApi.checkLocationSettings(googleApiClient, builder.build());
-        result.setResultCallback(new ResultCallback<LocationSettingsResult>() {
-            @Override
-            public void onResult(LocationSettingsResult result) {
-                final Status status = result.getStatus();
-                switch (status.getStatusCode()) {
-                    case LocationSettingsStatusCodes.SUCCESS:
-                        Log.i(TAG, "All location settings are satisfied.");
-                        break;
-                    case LocationSettingsStatusCodes.RESOLUTION_REQUIRED:
-                        Log.i(TAG, "Location settings are not satisfied. Show the user a dialog to upgrade location settings ");
-
-                        try {
-                            // Show the dialog by calling startResolutionForResult(), and check the result
-                            // in onActivityResult().
-                            status.startResolutionForResult(ScanningActivity.this, REQUEST_CHECK_SETTINGS);
-                        } catch (IntentSender.SendIntentException e) {
-                            Log.i(TAG, "PendingIntent unable to execute request.");
-                        }
-                        break;
-                    case LocationSettingsStatusCodes.SETTINGS_CHANGE_UNAVAILABLE:
-                        Log.i(TAG, "Location settings are inadequate, and cannot be fixed here. Dialog not created.");
-                        break;
-                }
-            }
-        });
-    }
-
-
-    @Override
-    protected void onResume() {
-    	super.onResume();
-
-    	// on every Resume check if BT is enabled (user could turn it off while app was in background etc.)
-    	if(mBleWrapper.isBtEnabled() == false) {
-			// BT is not turned on - ask user to make it enabled
-			Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
-		    startActivityForResult(enableBtIntent, ENABLE_BT_REQUEST_ID);
-		    // see onActivityResult to check what is the status of our request
-		}
-
-    	// initialize BleWrapper object
-        mBleWrapper.initialize();
-
-    	mDevicesListAdapter = new DeviceListAdapter(this);
-        setListAdapter(mDevicesListAdapter);
-
-        // Automatically start scanning for devices
-    	mScanning = true;
-		// remember to add timeout for scanning to not run it forever and drain the battery
-		addScanningTimeout();
-		mBleWrapper.startScanning();
-
-        invalidateOptionsMenu();
-    };
-
-    @Override
-    protected void onPause() {
-    	super.onPause();
-    	mScanning = false;
-    	mBleWrapper.stopScanning();
-    	invalidateOptionsMenu();
-
-    	mDevicesListAdapter.clearList();
-    };
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.scanning, menu);
-
-        if (mScanning) {
-            menu.findItem(R.id.scanning_start).setVisible(false);
-            menu.findItem(R.id.scanning_stop).setVisible(true);
-            menu.findItem(R.id.scanning_indicator)
-                .setActionView(R.layout.progress_indicator);
-
-        } else {
-            menu.findItem(R.id.scanning_start).setVisible(true);
-            menu.findItem(R.id.scanning_stop).setVisible(false);
-            menu.findItem(R.id.scanning_indicator).setActionView(null);
-        }
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case R.id.scanning_start:
-            	mScanning = true;
-            	mBleWrapper.startScanning();
-                break;
-            case R.id.scanning_stop:
-            	mScanning = false;
-            	mBleWrapper.stopScanning();
-                break;
-        }
-
-        invalidateOptionsMenu();
-        return true;
-    }
-
 
     /* user has selected one of the device */
     //instead of going to the peripheral activity, go to a new one displaying pateint info and a button to link
@@ -249,7 +105,6 @@ private static final String TAG = "Patient";
         intent.putExtra(LinkCapActivity.EXTRAS_DEVICE_NAME, device.getName());
         intent.putExtra(LinkCapActivity.EXTRAS_DEVICE_ADDRESS, device.getAddress());
         intent.putExtra(LinkCapActivity.EXTRAS_DEVICE_RSSI, mDevicesListAdapter.getRssi(position));
-//        intent.putExtra("patientname", LinkCapActivity.patientName);
         startActivity(intent);
 
         if (mScanning) {
@@ -261,33 +116,6 @@ private static final String TAG = "Patient";
         startActivity(intent);
     }
 
-    /* check if user agreed to enable BT */
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        // user didn't want to turn on BT
-        if (requestCode == ENABLE_BT_REQUEST_ID) {
-        	if(resultCode == Activity.RESULT_CANCELED) {
-		    	btDisabled();
-		        return;
-		    }
-        }
-        super.onActivityResult(requestCode, resultCode, data);
-    }
-
-	/* make sure that potential scanning will take no longer
-	 * than <SCANNING_TIMEOUT> seconds from now on */
-	private void addScanningTimeout() {
-		Runnable timeout = new Runnable() {
-            @Override
-            public void run() {
-            	if(mBleWrapper == null) return;
-                mScanning = false;
-                mBleWrapper.stopScanning();
-                invalidateOptionsMenu();
-            }
-        };
-        mHandler.postDelayed(timeout, SCANNING_TIMEOUT);
-	}
 
 	/* add device to the current list of devices */
     private void handleFoundDevice(final BluetoothDevice device,
@@ -304,11 +132,11 @@ private static final String TAG = "Patient";
 		});
 	}
 
-    private void btDisabled() {
-    	Toast.makeText(this, "Sorry, BT has to be turned ON for us to work!", Toast.LENGTH_LONG).show();
-        finish();
-    }
-
+//    private void btDisabled() {
+//    	Toast.makeText(this, "Sorry, BT has to be turned ON for us to work!", Toast.LENGTH_LONG).show();
+//        finish();
+//    }
+//
     private void bleMissing() {
     	Toast.makeText(this, "BLE Hardware is required but not available!", Toast.LENGTH_LONG).show();
         finish();

@@ -2,7 +2,7 @@ package com.example.imac.chs_pharmacy;
 
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
+
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -16,6 +16,7 @@ import org.w3c.dom.NodeList;
 import java.io.InputStream;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
+import android.util.Log;
 
 //need to create a model based on the xml. the pharmicist should be able to overwrite everything right now and save the updated data to the model
 
@@ -33,6 +34,9 @@ public class ReadPatientActivity extends AppCompatActivity {
     TextView tv10;
     TextView tv11;
     TextView tv12;
+
+    EditText name;
+    EditText rxid;
 
 
     @Override
@@ -125,10 +129,16 @@ public class ReadPatientActivity extends AppCompatActivity {
     public void findBle(View view) {
 
 
-        EditText rxid = (EditText) findViewById(R.id.textView1);
+        rxid = (EditText) findViewById(R.id.textView1);
         String rxidString = rxid.getText().toString();
-        EditText name = (EditText) findViewById(R.id.textView2);
+
+        name   = (EditText)findViewById(R.id.textView2);
         String nameString = name.getText().toString();
+
+
+
+
+
         EditText patientID = (EditText) findViewById(R.id.textView3);
         String patIdString = patientID.getText().toString();
         EditText quantity = (EditText) findViewById(R.id.textView4);
@@ -150,28 +160,25 @@ public class ReadPatientActivity extends AppCompatActivity {
         EditText ndc = (EditText) findViewById(R.id.textView12);
         String ndcString = ndc.getText().toString();
 
-        //construct the model with data from the xml file
-
-//        Patient patient = new Patient(nameString, rxidString, patIdString, quantityString, refillString, addressString, cityString, stateString, zipString, labelString, dosageString, ndcString);
-
-
-
-//        Patient p = (Patient)getApplication();
-        Log.d(TAG, nameString);
-//        Patient.patient_name = nameString;
+//        Patient p = (Patient) getApplicationContext();
 //        p.setPatientName(nameString);
-//        ((Patient) this.getApplication()).setPatientName(nameString);
-        final Patient p = (Patient) getApplicationContext();
+        
+        //// TODO: 1/26/17 need to figure out why this isn't setting anything 
+        Patient p = Patient.getInstance();
         p.setPatientName(nameString);
+        p.setRxid(rxidString);
 
-        Intent intent = new Intent(this, ScanningActivity.class);
-//        intent.putExtra("Patient", patient);
+//          Patient.getInstance().setPatientName(nameString);
+//        Patient.getInstance().setRxid(rxidString);
 //        Log.d(TAG, nameString);
-        startActivity(intent);
+
+
+        Intent intent = new Intent(getApplicationContext(), ScanningActivity.class);
+        this.startActivity(intent);
     }
 
     //on click this button needs to save new data to the model
-    public void confirmData(View view) {
+//    public void confirmData(View view) {
         //check and see if the text fields are the same as existing model data
 //
 //        EditText rxid = (EditText) findViewById(R.id.textView1);
@@ -204,7 +211,7 @@ public class ReadPatientActivity extends AppCompatActivity {
 //        Patient patient = new Patient(nameString, rxidString, patIdString, quantityString, refillString, addressString, cityString, stateString, zipString, labelString, dosageString, ndcString);
 
 
-    }
+//    }
 
 
 }

@@ -1,100 +1,46 @@
 package com.example.imac.chs_pharmacy;
 
+    import android.util.Log;
 
-//this is the model to hold the patient data
+  public class Patient {
 
-import android.app.Application;
-import android.os.Parcel;
-import android.os.Parcelable;
-import android.util.Log;
+        private static Patient patientInstance = null;
+        private String patient_name;
+        private String rx_id;
+        private static final String TAG = "Patient";
 
 
-public class Patient extends Application {
-
-    //private variables
-    public String patient_id;
-    public String patient_name;
-    public String prescription_id;
-    public String address;
-    public String city;
-    public String state;
-    public String quantity;
-    public String refills;
-    public String zip;
-    public String label;
-    public String dosage;
-    public String ndc;
-    private static final String TAG = "Patient";
-
-    //default constructor
-    public Patient(){
-    }
-
-    //create the constructor
-        public Patient(String startPatientName, String startPrescriptionID, String startPatientID, String startQuantity, String startRefills, String startAddress, String startCity, String startState, String startZip, String startLabel, String startDosage, String startNdc) {
-
-            this.patient_name = startPatientName;
-            this.patient_id = startPatientID;
-            this.prescription_id = startPrescriptionID;
-            this.address = startAddress;
-            this.city = startCity;
-            this.state = startState;
-            this.quantity = startQuantity;
-            this.refills = startRefills;
-            this. zip = startZip;
-            this.dosage = startDosage;
-            this.ndc = startNdc;
-            this.label = startLabel;
-
-             //getting the updated values from pharmacist
-             Log.d(TAG, patient_name);
-
+    private Patient() {
+        patient_name = "Test";
+        rx_id = "1234";
 
     }
 
-    //need to create methods to set the patient information
-    public void setPatient_id( String patientID ){
-
-        this.patient_id = patientID;
+    public static Patient getInstance() {
+        if (patientInstance == null) {
+            patientInstance = new Patient();
+        }
+        return patientInstance;
     }
-
 
     public void setPatientName( String patientName ){
         Log.d(TAG, "setting patient name");
-        this.patient_name = patientName;
-    }
 
+        patient_name = patientName;
+    }
 
     public String getPatientName( ){
         Log.d(TAG, "getting patient name");
-        return patient_name;
-
+        return this.patient_name;
     }
 
-    public void setPrescription_id( String prescriptionName ){
+      public void setRxid( String rxid ){
+          Log.d(TAG, "setting rx ");
+          rx_id = rxid;
+      }
 
-        this.prescription_id = prescriptionName;
-
-    }
-
-    public void setAddress( String addressName ){
-
-        this.address = addressName;
-
-    }
-
-    public void setCity( String cityName ){
-
-        this.city = cityName;
-
-    }
-
-    public void setState( String stateName ){
-
-        this.state = stateName;
-
-    }
-
-
-
+      public String getRxid( ){
+          Log.d(TAG, "gettingrxid");
+          return this.rx_id;
+      }
 }

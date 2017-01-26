@@ -25,7 +25,7 @@
     <string name="label">Label</string>
     <string name="dosage_text">Dosage</string>
     <string name="ndc">NDC</string>
-    <string name="find_ble">Detect Caps</string>
+    <string name="find_ble">Confirm and Find Caps</string>
 
     <string name="bleAddress">BLE Address</string>
     <string name="bleName">BLE name</string>

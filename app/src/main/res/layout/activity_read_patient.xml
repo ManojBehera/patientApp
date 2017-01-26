@@ -14,7 +14,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/patient_name"
-            android:layout_weight="0.06" />
+            android:layout_weight="0.06"
+            android:id="@+id/textView" />
 
         <EditText
             android:id="@+id/textView2"
@@ -271,11 +272,11 @@
     </LinearLayout>
 
 
-    <Button android:id="@+id/confirm"
-        android:layout_width="346dp"
-        android:layout_height="wrap_content"
-        android:text="@string/confirm_patient"
-        android:onClick="confirmData"/>
+    <!--<Button android:id="@+id/confirm"-->
+        <!--android:layout_width="346dp"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:text="@string/confirm_patient"-->
+        <!--android:onClick="confirmData"/>-->
 
     <Button android:id="@+id/bleButton"
         android:layout_width="349dp"

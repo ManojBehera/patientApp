@@ -23,8 +23,6 @@ public class LinkCapActivity extends AppCompatActivity implements BleWrapperUiCa
     public static final String EXTRAS_DEVICE_RSSI    = "BLE_DEVICE_RSSI";
 
 
-
-
     TextView tv;
     TextView tv2;
     TextView tv3;
@@ -59,6 +57,49 @@ public class LinkCapActivity extends AppCompatActivity implements BleWrapperUiCa
     private CharacteristicsListAdapter mCharacteristicsListAdapter = null;
     private CharacteristicDetailsAdapter mCharDetailsAdapter = null;
     private static final String TAG = "Patient";
+
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_link_cap);
+
+
+        Patient p = Patient.getInstance();
+        String patName = p.getPatientName();
+        String rxid = p.getRxid();
+
+        connectViewsVariables();
+
+        final Intent intent = getIntent();
+        mDeviceName = intent.getStringExtra(EXTRAS_DEVICE_NAME);
+        mDeviceAddress = intent.getStringExtra(EXTRAS_DEVICE_ADDRESS);
+        mDeviceRSSI = intent.getIntExtra(EXTRAS_DEVICE_RSSI, 0) + " db";
+
+        tv2=(TextView)findViewById(R.id.textView2);
+        tv2.setText(patName);
+
+
+        tv3=(TextView)findViewById(R.id.textView3);
+        tv3.setText(rxid);
+
+        tv4=(TextView)findViewById(R.id.textView4);
+        tv4.setText(mDeviceName);
+
+        tv5=(TextView)findViewById(R.id.textView5);
+        tv5.setText(mDeviceAddress);
+
+        tv6=(TextView)findViewById(R.id.textView6);
+        tv6.setText(mDeviceRSSI);
+
+    }
+
+
+    public void confirmData(View view) {
+
+    }
+
+
 
     public void uiDeviceConnected(final BluetoothGatt gatt,
                                   final BluetoothDevice device)
@@ -126,37 +167,8 @@ public class LinkCapActivity extends AppCompatActivity implements BleWrapperUiCa
     }
 
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_link_cap);
-
-        //need to get the global patient data
-
-        Patient p = (Patient)getApplication();
-        String patName = p.getPatientName();
-//        Log.d(TAG, patName);
 
 
-        connectViewsVariables();
-
-        final Intent intent = getIntent();
-        mDeviceName = intent.getStringExtra(EXTRAS_DEVICE_NAME);
-        mDeviceAddress = intent.getStringExtra(EXTRAS_DEVICE_ADDRESS);
-        mDeviceRSSI = intent.getIntExtra(EXTRAS_DEVICE_RSSI, 0) + " db";
-
-
-        tv2.setText(patName);
-//        tv.setText( getValue("PrescriptionID", element2));
-//        tv3.setText( getValue("PatientID", element2));
-//        tv4.setText( mDeviceName);
-//        tv5.setText( mDeviceAddress);
-//        tv6.setText( mDeviceRSSI);
-//        getSupportActionBar().setTitle(mDeviceName);
-//
-//        mListView.addHeaderView(mListViewHeader);
-//        mListView.setOnItemClickListener(listClickListener);
-    }
 
     public void uiAvailableServices(final BluetoothGatt gatt,
                                     final BluetoothDevice device,
