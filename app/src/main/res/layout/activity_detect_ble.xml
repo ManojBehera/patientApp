@@ -2,8 +2,9 @@
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical"
-    android:layout_width="match_parent"
+    android:layout_width="fill_parent"
     android:layout_height="wrap_content">
+
     <Button
         android:id="@+id/scanButton"
         android:layout_width="fill_parent"
@@ -15,9 +16,9 @@
         android:id="@+id/bleDeviceListView"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:layout_alignLeft="@+id/scanButton"
-        android:layout_below="@+id/scanButton"
-        android:layout_above="@+id/sendButton"
+
         >
     </ListView>
+
+
 </LinearLayout>

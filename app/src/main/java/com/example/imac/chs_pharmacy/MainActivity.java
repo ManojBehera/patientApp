@@ -94,63 +94,15 @@ public class MainActivity extends Activity {
                 if (barcodes.size() != 0) {
                     //this is where we need to call the next activity
                     sendMessage(barcodes.valueAt(0).displayValue);
-//                    barcodeInfo.post(new Runnable() {    // Use the post method of the TextView
-//                        public void run() {
-//                            barcodeInfo.setText(    // Update the TextView
-//                                    barcodes.valueAt(0).displayValue
-//                            );
-//                        }
-//                    });
+
                 }
             }
         });
 
 
-        //detect the barcode
-//        Frame frame = new Frame.Builder().setBitmap(myBitmap).build();
-//        SparseArray<Barcode> barcodes = detector.detect(frame);
-//
-//        //decode the barcode
-//        Barcode thisCode = barcodes.valueAt(0);
-//        TextView txtView = (TextView) findViewById(R.id.txtContent);
-//        txtView.setText(thisCode.rawValue);
-
-        //this chunk of code reads the pharmacy xml file, and can pull data needed from it
-        //don't need it for now
-//        tv1=(TextView)findViewById(R.id.textView1);
-//
-//        try {
-//            InputStream is = getAssets().open("customer.xml");
-//
-//            DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
-//            DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
-//            Document doc = dBuilder.parse(is);
-//
-//            Element element=doc.getDocumentElement();
-//            element.normalize();
-//
-//            NodeList nList = doc.getElementsByTagName("Prescription");
-//
-//            for (int i=0; i<nList.getLength(); i++) {
-//
-//                Node node = nList.item(i);
-//                if (node.getNodeType() == Node.ELEMENT_NODE) {
-//                    Element element2 = (Element) node;
-//                    tv1.setText(tv1.getText()+"\nName : " + getValue("Name", element2)+"\n");
-//                    tv1.setText(tv1.getText()+"Address : " + getValue("Address", element2)+"\n");
-//
-//                }
-//            }
-//
-//        } catch (Exception e) {e.printStackTrace();}
 
     }
 
-//    private static String getValue(String tag, Element element) {
-//        NodeList nodeList = element.getElementsByTagName(tag).item(0).getChildNodes();
-//        Node node = nodeList.item(0);
-//        return node.getNodeValue();
-//    }
 
 
 //    /** Called when the user clicks the Send button */

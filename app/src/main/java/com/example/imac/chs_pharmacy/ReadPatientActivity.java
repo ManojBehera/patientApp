@@ -67,6 +67,7 @@ public class ReadPatientActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
 
+                //getting the class data from the input boxes
                 rxid = (EditText) findViewById(R.id.textView1);
                 String rxidString = rxid.getText().toString();
 
@@ -103,10 +104,11 @@ public class ReadPatientActivity extends AppCompatActivity {
                 ndc   = (EditText)findViewById(R.id.textView12);
                 String ndcString = name.getText().toString();
 
+                //create instance of singleton and save attributes
                 Patient p = Patient.getInstance();
+
                 p.setPatientName(nameString);
                 p.setRxid(rxidString);
-
                 p.setPatient_id(patIdString);
                 p.setQuantity(qtyString);
                 p.setRefills(refillString);
@@ -118,7 +120,7 @@ public class ReadPatientActivity extends AppCompatActivity {
                 p.setDosage(dosageString);
                 p.setNdc(ndcString);
 
-
+                //kick off the ble activity
                 Intent intent = new Intent(ReadPatientActivity.this, DetectBleActivity.class);
 ;                startActivity(intent);
             }
@@ -126,7 +128,7 @@ public class ReadPatientActivity extends AppCompatActivity {
 
 
 
-        //adds all the variables to the views on the text
+        //setting variables to text views
         tv2=(TextView)findViewById(R.id.textView2);
         tv=(TextView)findViewById(R.id.textView1);
         tv3=(TextView)findViewById(R.id.textView3);
@@ -158,7 +160,7 @@ public class ReadPatientActivity extends AppCompatActivity {
                 if (node.getNodeType() == Node.ELEMENT_NODE) {
                     Element element2 = (Element) node;
 
-
+                    //setting the values to the variables
                     tv2.setText( getValue("Name", element2));
                     tv.setText( getValue("PrescriptionID", element2));
                     tv3.setText( getValue("PatientID", element2));
