@@ -5,7 +5,7 @@ import java.util.UUID;
 public class BleDefinedUUIDs {
 	
 	public static class Service {
-		final static public UUID HEART_RATE               = UUID.fromString("0000180d-0000-1000-8000-00805f9b34fb");
+		final static public UUID CAP               = UUID.fromString("0000180a-0000-1000-8000-00805f9b34fb");
 	};
 	
 	public static class Characteristic {

@@ -9,13 +9,17 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-
 import java.util.List;
 import java.util.Locale;
+import java.util.UUID;
+
+import static java.util.UUID.fromString;
 
 public class LinkCapActivity extends AppCompatActivity implements BleWrapperUiCallbacks{
     public static final String EXTRAS_DEVICE_NAME    = "BLE_DEVICE_NAME";
@@ -58,6 +62,11 @@ public class LinkCapActivity extends AppCompatActivity implements BleWrapperUiCa
     private CharacteristicDetailsAdapter mCharDetailsAdapter = null;
     private static final String TAG = "Patient";
 
+    final static public UUID hard_service  = UUID.fromString("0000180a-0000-1000-8000-00805f9b34fb");
+    final static public UUID new_key   = UUID.fromString("00002a37-0000-1000-8000-00805f9b34fb");
+    final static public UUID assign_key   = UUID.fromString("00002a37-0000-1000-8000-00805f9b34fb");
+
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -66,10 +75,38 @@ public class LinkCapActivity extends AppCompatActivity implements BleWrapperUiCa
 
 
         Patient p = Patient.getInstance();
-        String patName = p.getPatientName();
+        final String patName = p.getPatientName();
         String rxid = p.getRxid();
 
-        connectViewsVariables();
+        Button btn = (Button) findViewById(R.id.confirm);
+        btn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                byte[] writeKeyName = parseHexStringToBytes("age");
+                byte[] writeValueName = parseHexStringToBytes(patName);
+
+                BluetoothGatt gatt;
+
+                gatt = mBleWrapper.getGatt();
+
+
+                BluetoothGattCharacteristic k;
+                BluetoothGattCharacteristic value;
+
+                //service is the 180b
+                //characteristic is what we need to write to
+                //will need to write to two services. one for the key, the other for the value
+
+                //write to key
+                k = gatt.getService(hard_service).getCharacteristic(new_key);
+                mBleWrapper.writeDataToCharacteristic(k, writeKeyName);
+
+                //now to write the value
+                value = gatt.getService(hard_service).getCharacteristic(new_key);
+                mBleWrapper.writeDataToCharacteristic(value, writeValueName);
+
+            }});
 
         final Intent intent = getIntent();
         mDeviceName = intent.getStringExtra(EXTRAS_DEVICE_NAME);
@@ -78,7 +115,6 @@ public class LinkCapActivity extends AppCompatActivity implements BleWrapperUiCa
 
         tv2=(TextView)findViewById(R.id.textView2);
         tv2.setText(patName);
-
 
         tv1=(TextView)findViewById(R.id.textView1);
         tv1.setText(rxid);
@@ -95,9 +131,36 @@ public class LinkCapActivity extends AppCompatActivity implements BleWrapperUiCa
     }
 
 
-    public void confirmData(View view) {
-        //here we just need to write to the correct characteristics
+//    public void confirmData(View view) {
+//        //here we just need to write to the correct characteristics
+//        //we have the address and the rssi, need to find connect to the service we need
+//
+//        //setservice
+//        UUID thisCap   = fromString("0000180b-0000-1000-8000-00805f9b34fb");
+//
+//        //set characteristic
+//        EditText hex = (EditText) view.getTag();
+//        String newValue =  hex.getText().toString().toLowerCase(Locale.getDefault());
+//        byte[] dataToWrite = parseHexStringToBytes(newValue);
+//
+//        //for each characteristic we have, write the data to it
+//        mBleWrapper.writeDataToCharacteristic(patName, dataToWrite);
+//
+//
+//    }
 
+    public byte[] parseHexStringToBytes(final String hex) {
+        String tmp = hex.substring(2).replaceAll("[^[0-9][a-f]]", "");
+        byte[] bytes = new byte[tmp.length() / 2]; // every two letters in the string are one byte finally
+
+        String part = "";
+
+        for(int i = 0; i < bytes.length; ++i) {
+            part = "0x" + tmp.substring(i*2, i*2+2);
+            bytes[i] = Long.decode(part).byteValue();
+        }
+
+        return bytes;
     }
 
 
