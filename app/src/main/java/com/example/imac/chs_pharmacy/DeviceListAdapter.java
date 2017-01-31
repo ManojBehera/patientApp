@@ -33,6 +33,7 @@ public class DeviceListAdapter extends BaseAdapter {
         }
     }
 
+
     public BluetoothDevice getDevice(int index) {
         return mDevices.get(index);
     }

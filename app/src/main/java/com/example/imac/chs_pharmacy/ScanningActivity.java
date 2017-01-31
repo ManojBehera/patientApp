@@ -112,6 +112,7 @@ public class ScanningActivity extends ListActivity {
     }
 
     /* user has selected one of the device */
+    //this now needs to just program 
     @Override
     protected void onListItemClick(ListView l, View v, int position, long id) {
         final BluetoothDevice device = mDevicesListAdapter.getDevice(position);

@@ -35,7 +35,6 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".LinkCapActivity"/>
         <activity android:name=".ReadPatientActivity" />
         <activity android:name=".ScanningActivity" />
     </application>
