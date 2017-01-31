@@ -62,9 +62,9 @@ public class LinkCapActivity extends AppCompatActivity implements BleWrapperUiCa
     private CharacteristicDetailsAdapter mCharDetailsAdapter = null;
     private static final String TAG = "Patient";
 
-    final static public UUID hard_service  = UUID.fromString("0000180a-0000-1000-8000-00805f9b34fb");
-    final static public UUID new_key   = UUID.fromString("00002a37-0000-1000-8000-00805f9b34fb");
-    final static public UUID assign_key   = UUID.fromString("00002a37-0000-1000-8000-00805f9b34fb");
+    final static public UUID CAP_SERVICE  = UUID.fromString("0000180a-0000-1000-8000-00805f9b34fb");
+    final static public UUID CREATE_KEY   = UUID.fromString("00003001-0000-1000-8000-00805f9b34fb");
+    final static public UUID CREATE_VALUE   = UUID.fromString("00003002-0000-1000-8000-00805f9b34fb");
 
 
 
@@ -99,12 +99,12 @@ public class LinkCapActivity extends AppCompatActivity implements BleWrapperUiCa
                 //will need to write to two services. one for the key, the other for the value
 
                 //write to key
-                k = gatt.getService(hard_service).getCharacteristic(new_key);
+                k = gatt.getService(CAP_SERVICE).getCharacteristic(CREATE_KEY);
                 mBleWrapper.writeDataToCharacteristic(k, writeKeyName);
 
-                //now to write the value
-                value = gatt.getService(hard_service).getCharacteristic(new_key);
-                mBleWrapper.writeDataToCharacteristic(value, writeValueName);
+//                //now to write the value
+//                value = gatt.getService(hard_service).getCharacteristic(new_key);
+//                mBleWrapper.writeDataToCharacteristic(value, writeValueName);
 
             }});
 
