@@ -12,7 +12,7 @@ import java.util.ArrayList;
 import java.util.Locale;
 
 /* display all services for particular device */
-public class ServicesListAdapter extends BaseAdapter {
+public class 	ServicesListAdapter extends BaseAdapter {
 	private ArrayList<BluetoothGattService> mBTServices;
 	private LayoutInflater mInflater;
 	
