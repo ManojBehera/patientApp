@@ -120,8 +120,8 @@ public class ReadPatientActivity extends AppCompatActivity {
                 p.setDosage(dosageString);
                 p.setNdc(ndcString);
 
-                //kick off the ble activity
-                Intent intent = new Intent(ReadPatientActivity.this, DetectBleActivity.class);
+                //kick off the next activity
+                Intent intent = new Intent(ReadPatientActivity.this, ScanningActivity.class);
 ;                startActivity(intent);
             }
         });

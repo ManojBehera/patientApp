@@ -1,5 +1,6 @@
 package com.example.imac.chs_pharmacy;
 
+    import android.bluetooth.BluetoothDevice;
     import android.util.Log;
 
   public class Patient {
@@ -126,4 +127,5 @@ package com.example.imac.chs_pharmacy;
       public void setNdc(String ndc) {
           this.ndc = ndc;
       }
-}
+
+  }

@@ -1,5 +1,6 @@
 package com.example.imac.chs_pharmacy;
 
+import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothGatt;
 import android.bluetooth.BluetoothGattCharacteristic;
@@ -21,10 +22,15 @@ import java.util.UUID;
 
 import static java.util.UUID.fromString;
 
-public class LinkCapActivity extends AppCompatActivity implements BleWrapperUiCallbacks{
+public class LinkCapActivity extends AppCompatActivity {
+
+    //these are the only three things needed from scanning activity
     public static final String EXTRAS_DEVICE_NAME    = "BLE_DEVICE_NAME";
     public static final String EXTRAS_DEVICE_ADDRESS = "BLE_DEVICE_ADDRESS";
     public static final String EXTRAS_DEVICE_RSSI    = "BLE_DEVICE_RSSI";
+
+    //initilazie the ble wrapper, pulling in functions that we need
+    private BleWrapper mBleWrapper = null;
 
 
     TextView tv1;
@@ -47,19 +53,6 @@ public class LinkCapActivity extends AppCompatActivity implements BleWrapperUiCa
     private String mDeviceAddress;
     private String mDeviceRSSI;
 
-    private BleWrapper mBleWrapper;
-
-    private TextView mDeviceNameView;
-    private TextView mDeviceAddressView;
-    private TextView mDeviceRssiView;
-    private TextView mDeviceStatus;
-    private ListView mListView;
-    private View mListViewHeader;
-    private TextView mHeaderTitle;
-    private TextView mHeaderBackButton;
-    private ServicesListAdapter mServicesListAdapter = null;
-    private CharacteristicsListAdapter mCharacteristicsListAdapter = null;
-    private CharacteristicDetailsAdapter mCharDetailsAdapter = null;
     private static final String TAG = "Patient";
 
     final static public UUID hard_service  = UUID.fromString("0000180a-0000-1000-8000-00805f9b34fb");
@@ -67,11 +60,26 @@ public class LinkCapActivity extends AppCompatActivity implements BleWrapperUiCa
     final static public UUID assign_key   = UUID.fromString("00002a37-0000-1000-8000-00805f9b34fb");
 
 
-
     @Override
+    //put things here that don't need to be re-initialized
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_link_cap);
+//
+//        //constructor for the blewrapper
+//        mBleWrapper = new BleWrapper(this, new BleWrapperUiCallbacks.Null()
+//        {
+//        });
+//
+//        //make sure ble hardware is accessable
+//        if (!mBleWrapper.checkBleHardwareAvailable())
+//        {
+//            Toast.makeText(this, "No BLE-compatible hardware detected",
+//                    Toast.LENGTH_SHORT).show();
+//
+//            //kill app if not accessable
+//            finish();
+//        }
 
 
         Patient p = Patient.getInstance();
@@ -109,9 +117,9 @@ public class LinkCapActivity extends AppCompatActivity implements BleWrapperUiCa
             }});
 
         final Intent intent = getIntent();
-        mDeviceName = intent.getStringExtra(EXTRAS_DEVICE_NAME);
-        mDeviceAddress = intent.getStringExtra(EXTRAS_DEVICE_ADDRESS);
-        mDeviceRSSI = intent.getIntExtra(EXTRAS_DEVICE_RSSI, 0) + " db";
+//        mDeviceName = intent.getStringExtra(EXTRAS_DEVICE_NAME);
+//        mDeviceAddress = intent.getStringExtra(EXTRAS_DEVICE_ADDRESS);
+//        mDeviceRSSI = intent.getIntExtra(EXTRAS_DEVICE_RSSI, 0) + " db";
 
         tv2=(TextView)findViewById(R.id.textView2);
         tv2.setText(patName);
@@ -145,193 +153,8 @@ public class LinkCapActivity extends AppCompatActivity implements BleWrapperUiCa
         return bytes;
     }
 
-
-
-    public void uiDeviceConnected(final BluetoothGatt gatt,
-                                  final BluetoothDevice device)
-    {
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                mDeviceStatus.setText("connected");
-                invalidateOptionsMenu();
-            }
-        });
-    }
-
-    public void uiDeviceDisconnected(final BluetoothGatt gatt,
-                                     final BluetoothDevice device)
-    {
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                mDeviceStatus.setText("disconnected");
-                mServicesListAdapter.clearList();
-                mCharacteristicsListAdapter.clearList();
-                mCharDetailsAdapter.clearCharacteristic();
-
-                invalidateOptionsMenu();
-
-                mHeaderTitle.setText("");
-                mHeaderBackButton.setVisibility(View.INVISIBLE);
-                mListType = LinkCapActivity.ListType.GATT_SERVICES;
-                mListView.setAdapter(mServicesListAdapter);
-            }
-        });
-    }
-
-    @Override
-    public void uiDeviceFound(BluetoothDevice device, int rssi, byte[] record) {
-        // no need to handle that in this Activity (here, we are not scanning)
-    }
-
-    public void uiNewRssiAvailable(final BluetoothGatt gatt,
-                                   final BluetoothDevice device,
-                                   final int rssi)
-    {
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                mDeviceRSSI = rssi + " db";
-                mDeviceRssiView.setText(mDeviceRSSI);
-            }
-        });
-    }
-
-    public void uiGotNotification(final BluetoothGatt gatt,
-                                  final BluetoothDevice device,
-                                  final BluetoothGattService service,
-                                  final BluetoothGattCharacteristic ch)
-    {
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                // at this moment we only need to send this "signal" do characteristic's details view
-                mCharDetailsAdapter.setNotificationEnabledForService(ch);
-            }
-        });
-    }
-
-
-
-
-
-    public void uiAvailableServices(final BluetoothGatt gatt,
-                                    final BluetoothDevice device,
-                                    final List<BluetoothGattService> services)
-    {
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                mServicesListAdapter.clearList();
-                mListType = LinkCapActivity.ListType.GATT_SERVICES;
-                mListView.setAdapter(mServicesListAdapter);
-                mHeaderTitle.setText(mDeviceName + "\'s services:");
-                mHeaderBackButton.setVisibility(View.INVISIBLE);
-
-                for(BluetoothGattService service : mBleWrapper.getCachedServices()) {
-                    mServicesListAdapter.addService(service);
-                }
-                mServicesListAdapter.notifyDataSetChanged();
-            }
-        });
-    }
-
-    public void uiCharacteristicForService(final BluetoothGatt gatt,
-                                           final BluetoothDevice device,
-                                           final BluetoothGattService service,
-                                           final List<BluetoothGattCharacteristic> chars)
-    {
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                mCharacteristicsListAdapter.clearList();
-                mListType = LinkCapActivity.ListType.GATT_CHARACTERISTICS;
-                mListView.setAdapter(mCharacteristicsListAdapter);
-                mHeaderTitle.setText(BleNamesResolver.resolveServiceName(service.getUuid().toString().toLowerCase(Locale.getDefault())) + "\'s characteristics:");
-                mHeaderBackButton.setVisibility(View.VISIBLE);
-
-                for(BluetoothGattCharacteristic ch : chars) {
-                    mCharacteristicsListAdapter.addCharacteristic(ch);
-                }
-                mCharacteristicsListAdapter.notifyDataSetChanged();
-            }
-        });
-    }
-
-    public void uiCharacteristicsDetails(final BluetoothGatt gatt,
-                                         final BluetoothDevice device,
-                                         final BluetoothGattService service,
-                                         final BluetoothGattCharacteristic characteristic)
-    {
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                mListType = LinkCapActivity.ListType.GATT_CHARACTERISTIC_DETAILS;
-                mListView.setAdapter(mCharDetailsAdapter);
-                mHeaderTitle.setText(BleNamesResolver.resolveCharacteristicName(characteristic.getUuid().toString().toLowerCase(Locale.getDefault())) + "\'s details:");
-                mHeaderBackButton.setVisibility(View.VISIBLE);
-
-                mCharDetailsAdapter.setCharacteristic(characteristic);
-                mCharDetailsAdapter.notifyDataSetChanged();
-            }
-        });
-    }
-
-    public void uiNewValueForCharacteristic(final BluetoothGatt gatt,
-                                            final BluetoothDevice device,
-                                            final BluetoothGattService service,
-                                            final BluetoothGattCharacteristic characteristic,
-                                            final String strValue,
-                                            final int intValue,
-                                            final byte[] rawValue,
-                                            final String timestamp)
-    {
-        if(mCharDetailsAdapter == null || mCharDetailsAdapter.getCharacteristic(0) == null) return;
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                mCharDetailsAdapter.newValueForCharacteristic(characteristic, strValue, intValue, rawValue, timestamp);
-                mCharDetailsAdapter.notifyDataSetChanged();
-            }
-        });
-    }
-
-    public void uiSuccessfulWrite(final BluetoothGatt gatt,
-                                  final BluetoothDevice device,
-                                  final BluetoothGattService service,
-                                  final BluetoothGattCharacteristic ch,
-                                  final String description)
-    {
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                Toast.makeText(getApplicationContext(), "Writing to " + description + " was finished successfully!", Toast.LENGTH_LONG).show();
-            }
-        });
-    }
-
-    public void uiFailedWrite(final BluetoothGatt gatt,
-                              final BluetoothDevice device,
-                              final BluetoothGattService service,
-                              final BluetoothGattCharacteristic ch,
-                              final String description)
-    {
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                Toast.makeText(getApplicationContext(), "Writing to " + description + " FAILED!", Toast.LENGTH_LONG).show();
-            }
-        });
-    }
-
-    private void connectViewsVariables() {
-//        mDeviceNameView = (TextView) findViewById(R.id.peripheral_name);
-//        mDeviceAddressView = (TextView) findViewById(R.id.peripheral_address);
-//        mDeviceRssiView = (TextView) findViewById(R.id.peripheral_rssi);
-//        mDeviceStatus = (TextView) findViewById(R.id.peripheral_status);
-////        mListView = (ListView) findViewById(R.id.listView);
-//        mHeaderTitle = (TextView) mListViewHeader.findViewById(R.id.peripheral_service_list_title);
-//        mHeaderBackButton = (TextView) mListViewHeader.findViewById(R.id.peripheral_list_service_back);
-    }
 }
+
+
+
+
