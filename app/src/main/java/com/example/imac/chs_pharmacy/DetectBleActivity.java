@@ -117,6 +117,7 @@ public class DetectBleActivity extends ListActivity {
 
 
     /* user has selected one of the device */
+    //instead of firing off a new intent, need to start writing data to this device
     @Override
     protected void onListItemClick(ListView l, View v, int position, long id) {
         final BluetoothDevice device = mDevicesListAdapter.getDevice(position);
