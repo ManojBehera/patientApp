@@ -126,20 +126,20 @@ public class LinkCapActivity extends AppCompatActivity implements BleWrapperUiCa
 //                }
 
 
-                //services aren't showing up here
-                for (BluetoothGattService service : services)
-                {
+        //services aren't showing up here
+        for (BluetoothGattService service : services)
+        {
 //                    String serviceName = BleNamesResolver.resolveUuid(service.getUuid().toString());
 //                    Log.d(TAG, serviceName);
 
-                    String uuid = service.getUuid().toString().toLowerCase(Locale.getDefault());
-                    Log.d(TAG, uuid);
+            String uuid = service.getUuid().toString().toLowerCase(Locale.getDefault());
+            Log.d(TAG, uuid);
 
 
 //                    mBleWrapper.getCharacteristicsForService(service);
 
-                }
         }
+    }
 
 
 
