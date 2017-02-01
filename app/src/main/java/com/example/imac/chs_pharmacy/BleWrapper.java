@@ -18,6 +18,7 @@ import android.content.pm.PackageManager;
 import android.os.Handler;
 import android.util.Log;
 
+import java.math.BigInteger;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
@@ -238,13 +239,18 @@ public class BleWrapper {
     }
 
     /* set new value for particular characteristic */
-    public void writeDataToCharacteristic(final BluetoothGattCharacteristic ch, final byte[] dataToWrite) {
+    //comma seperated ascii value hex needs to be sent over
+    public void writeDataToCharacteristic(final BluetoothGattCharacteristic ch, String dataToWrite) {
     	if (mBluetoothAdapter == null || mBluetoothGatt == null || ch == null) return;
     	
     	// first set it locally....
     	ch.setValue(dataToWrite);
+
     	// ... and then "commit" changes to the peripheral
     	mBluetoothGatt.writeCharacteristic(ch);
+
+        //this is where we stop. we don't actually want to disconnect, we want to write to the next characteristic
+//        diconnect();
     }
     
     /* enables/disables notification for characteristic */

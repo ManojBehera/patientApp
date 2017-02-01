@@ -39,11 +39,17 @@ public class LinkCapActivity extends AppCompatActivity implements BleWrapperUiCa
     private String mDeviceName;
     private String mDeviceAddress;
     private String mDeviceRSSI;
+    private String patientName;
+    private String dosage;
+    private String schedule;
+    private String rxid;
+    private String address;
 
     private BleWrapper mBleWrapper;
 
     //holds array of all the services we have
     private ArrayList<BluetoothGattService> mBTServices;
+    private ArrayList<BluetoothGattCharacteristic> mCharacteristics;
 
     private TextView mDeviceNameView;
     private TextView mDeviceAddressView;
@@ -53,11 +59,14 @@ public class LinkCapActivity extends AppCompatActivity implements BleWrapperUiCa
     private View mListViewHeader;
     private TextView mHeaderTitle;
     private TextView mHeaderBackButton;
+    private String curCharacteristic = "3000";
+    private String curWriteValue = "Age";
+    public UUID thisUUID;
     private static final String TAG = "Patient";
 
-    final static public UUID CAP_SERVICE  = UUID.fromString("0000180a-0000-1000-8000-00805f9b34fb");
+    final static public UUID CAP_SERVICE  = UUID.fromString("0000180b-0000-1000-8000-00805f9b34fb");
     final static public UUID CREATE_KEY   = UUID.fromString("00003001-0000-1000-8000-00805f9b34fb");
-    final static public UUID CREATE_VALUE   = UUID.fromString("00003002-0000-1000-8000-00805f9b34fb");
+    final static public UUID CREATE_VALUE   = UUID.fromString("00003000-0000-1000-8000-00805f9b34fb");
 
 
 
@@ -70,8 +79,11 @@ public class LinkCapActivity extends AppCompatActivity implements BleWrapperUiCa
 
         //for now just display the name and rxid
         Patient p = Patient.getInstance();
-        final String patName = p.getPatientName();
-        String rxid = p.getRxid();
+        patientName = p.getPatientName();
+        rxid = p.getRxid();
+        address = p.getAddress();
+        dosage = p.getDosage();
+        schedule = p.getLabel();
 
         final Intent intent = getIntent();
         mDeviceName = intent.getStringExtra(EXTRAS_DEVICE_NAME);
@@ -79,7 +91,7 @@ public class LinkCapActivity extends AppCompatActivity implements BleWrapperUiCa
         mDeviceRSSI = intent.getIntExtra(EXTRAS_DEVICE_RSSI, 0) + " db";
 
         tv2=(TextView)findViewById(R.id.textView2);
-        tv2.setText(patName);
+        tv2.setText(patientName);
 
         tv1=(TextView)findViewById(R.id.textView1);
         tv1.setText(rxid);
@@ -103,27 +115,22 @@ public class LinkCapActivity extends AppCompatActivity implements BleWrapperUiCa
         if(!mBleWrapper.initialize()) {
             finish();
         }
+    }
 
-        // start automatically connecting to the device
 
-
+    //button is clicked, this is where it all starts
+    public void confirmData(View v){
         if (mBleWrapper.connect(mDeviceAddress)) {
             Log.d(TAG, "we are connected!");
         }
 
-//        uiAvailableServices(mBleWrapper.getGatt(), mBleWrapper.getDevice(), mBleWrapper.getCachedServices());
-
     }
-
-
 
     //add each service to the services array
     public void uiAvailableServices(final BluetoothGatt gatt,
                                     final BluetoothDevice device,
                                     final List<BluetoothGattService> services)
     {
-
-        //services aren't showing up here
         for (BluetoothGattService service : services)
         {
             if (service.getUuid().equals(CAP_SERVICE)) {
@@ -133,39 +140,70 @@ public class LinkCapActivity extends AppCompatActivity implements BleWrapperUiCa
             }
                 //add each service to our services array
             String uuid = service.getUuid().toString().toLowerCase(Locale.getDefault());
-            Log.d(TAG, uuid);
+            Log.d(TAG, uuid + "available service");
                 mBTServices.add(service);
 
         }
-
-        //now that we have the array of services, we need to pull one that has the uuid we're looking for
-//        BluetoothGattService service = mBTServices.get();
     }
 
+    public void uiCharacteristicForService(final BluetoothGatt gatt,
+                                           final BluetoothDevice device,
+                                           final BluetoothGattService service,
+                                           final List<BluetoothGattCharacteristic> chars)
+    {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                Log.d(TAG, "wer are getting characteristics");
 
+                //write the value
+                if (curCharacteristic.equals("3000"))
+                {
+                    Log.d(TAG, "current set to 3000");
+                    thisUUID   = UUID.fromString("00003000-0000-1000-8000-00805f9b34fb");
 
-    //button is clicked, this is where it all starts
-    public void confirmData(View v){
-        //now with the device connected, we need to set the service
-//        BluetoothGattService service = mBTServices.get(index);
-//        mBleWrapper.getCharacteristicsForService(service);
+                }
 
+                //write the attribute
+                else if (curCharacteristic.equals("3001")) {
+                    Log.d(TAG, "current set to 3001");
+                    thisUUID   = UUID.fromString("00003001-0000-1000-8000-00805f9b34fb");
+                }
+
+                for(BluetoothGattCharacteristic ch : chars) {
+
+                    //if the characteristic id is 3001, it is where we need to write the key of attribute
+                    if (ch.getUuid().equals(thisUUID))
+                    {
+                        Log.d(TAG,  "found our characteristic");
+                        //send characteristic to the blewrapper to get the details of it
+                        uiCharacteristicsDetails(mBleWrapper.getGatt(), mBleWrapper.getDevice(), mBleWrapper.getCachedService(), ch);
+                    }
+
+                    String uuid = ch.getUuid().toString().toLowerCase(Locale.getDefault());
+                    Log.d(TAG, uuid + "characteristic");
+                    //add characteristics to the array for storage
+//                    mCharacteristics.add(ch);
+                }
+
+            }
+        });
     }
 
-    public byte[] parseHexStringToBytes(final String hex) {
-        String tmp = hex.substring(2).replaceAll("[^[0-9][a-f]]", "");
-        byte[] bytes = new byte[tmp.length() / 2]; // every two letters in the string are one byte finally
-
-        String part = "";
-
-        for (int i = 0; i < bytes.length; ++i) {
-            part = "0x" + tmp.substring(i * 2, i * 2 + 2);
-            bytes[i] = Long.decode(part).byteValue();
-        }
-
-        return bytes;
+    //this is called when we find the characteristic we want to write to. right now will be 3000 or 3001
+    public void uiCharacteristicsDetails(final BluetoothGatt gatt,
+                                         final BluetoothDevice device,
+                                         final BluetoothGattService service,
+                                         final BluetoothGattCharacteristic characteristic)
+    {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                //write to the variable characteristic with variable value
+                mBleWrapper.writeDataToCharacteristic(characteristic, curWriteValue);
+            }
+        });
     }
-
 
 
     public void uiDeviceConnected(final BluetoothGatt gatt,
@@ -224,52 +262,6 @@ public class LinkCapActivity extends AppCompatActivity implements BleWrapperUiCa
     }
 
 
-
-
-
-    //TODO this is where I left off. now hook up to characteristic.
-    public void uiCharacteristicForService(final BluetoothGatt gatt,
-                                           final BluetoothDevice device,
-                                           final BluetoothGattService service,
-                                           final List<BluetoothGattCharacteristic> chars)
-    {
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                Log.d(TAG, "wer are getting characteristics");
-//                mCharacteristicsListAdapter.clearList();
-//                mListType = LinkCapActivity.ListType.GATT_CHARACTERISTICS;
-//                mListView.setAdapter(mCharacteristicsListAdapter);
-//                mHeaderTitle.setText(BleNamesResolver.resolveServiceName(service.getUuid().toString().toLowerCase(Locale.getDefault())) + "\'s characteristics:");
-//                mHeaderBackButton.setVisibility(View.VISIBLE);
-//
-//                for(BluetoothGattCharacteristic ch : chars) {
-//                    mCharacteristicsListAdapter.addCharacteristic(ch);
-//                }
-//                mCharacteristicsListAdapter.notifyDataSetChanged();
-            }
-        });
-    }
-
-    public void uiCharacteristicsDetails(final BluetoothGatt gatt,
-                                         final BluetoothDevice device,
-                                         final BluetoothGattService service,
-                                         final BluetoothGattCharacteristic characteristic)
-    {
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-//                mListType = LinkCapActivity.ListType.GATT_CHARACTERISTIC_DETAILS;
-//                mListView.setAdapter(mCharDetailsAdapter);
-//                mHeaderTitle.setText(BleNamesResolver.resolveCharacteristicName(characteristic.getUuid().toString().toLowerCase(Locale.getDefault())) + "\'s details:");
-//                mHeaderBackButton.setVisibility(View.VISIBLE);
-//
-//                mCharDetailsAdapter.setCharacteristic(characteristic);
-//                mCharDetailsAdapter.notifyDataSetChanged();
-            }
-        });
-    }
-
     public void uiNewValueForCharacteristic(final BluetoothGatt gatt,
                                             final BluetoothDevice device,
                                             final BluetoothGattService service,
@@ -279,16 +271,11 @@ public class LinkCapActivity extends AppCompatActivity implements BleWrapperUiCa
                                             final byte[] rawValue,
                                             final String timestamp)
     {
-//        if(mCharDetailsAdapter == null || mCharDetailsAdapter.getCharacteristic(0) == null) return;
-//        runOnUiThread(new Runnable() {
-//            @Override
-//            public void run() {
-//                mCharDetailsAdapter.newValueForCharacteristic(characteristic, strValue, intValue, rawValue, timestamp);
-//                mCharDetailsAdapter.notifyDataSetChanged();
-//            }
-//        });
+        Log.d(TAG, "newvalueforchar");
+        Log.d(TAG, strValue);
     }
 
+    //this should be called after writedatatocharacteristic
     public void uiSuccessfulWrite(final BluetoothGatt gatt,
                                   final BluetoothDevice device,
                                   final BluetoothGattService service,
@@ -300,9 +287,12 @@ public class LinkCapActivity extends AppCompatActivity implements BleWrapperUiCa
             public void run() {
                 Toast.makeText(getApplicationContext(), "Writing to " + description + " was finished successfully!", Toast.LENGTH_LONG).show();
             }
+
+            //after write, we need to move on to the next value
         });
     }
 
+    //this should be called after writedatatocharacteristic
     public void uiFailedWrite(final BluetoothGatt gatt,
                               final BluetoothDevice device,
                               final BluetoothGattService service,
