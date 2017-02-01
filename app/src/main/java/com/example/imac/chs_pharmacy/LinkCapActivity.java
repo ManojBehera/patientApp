@@ -105,9 +105,13 @@ public class LinkCapActivity extends AppCompatActivity implements BleWrapperUiCa
         }
 
         // start automatically connecting to the device
-        mBleWrapper.connect(mDeviceAddress);
 
-        uiAvailableServices(mBleWrapper.getGatt(), mBleWrapper.getDevice(), mBleWrapper.getCachedServices());
+
+        if (mBleWrapper.connect(mDeviceAddress)) {
+            Log.d(TAG, "we are connected!");
+        }
+
+//        uiAvailableServices(mBleWrapper.getGatt(), mBleWrapper.getDevice(), mBleWrapper.getCachedServices());
 
     }
 
@@ -118,27 +122,24 @@ public class LinkCapActivity extends AppCompatActivity implements BleWrapperUiCa
                                     final BluetoothDevice device,
                                     final List<BluetoothGattService> services)
     {
-//                for(BluetoothGattService service : mBleWrapper.getCachedServices()) {
-//                    mBTServices.add(service);
-//                    //output service stuff here
-//                    String uuid = service.getUuid().toString().toLowerCase(Locale.getDefault());
-//                    Log.d(TAG, uuid);
-//                }
-
 
         //services aren't showing up here
         for (BluetoothGattService service : services)
         {
-//                    String serviceName = BleNamesResolver.resolveUuid(service.getUuid().toString());
-//                    Log.d(TAG, serviceName);
-
+            if (service.getUuid().equals(CAP_SERVICE)) {
+                //found the cap, now get the characteristics
+                mBleWrapper.getCharacteristicsForService(service);
+                Log.d(TAG, "FOUND THE CAP");
+            }
+                //add each service to our services array
             String uuid = service.getUuid().toString().toLowerCase(Locale.getDefault());
             Log.d(TAG, uuid);
-
-
-//                    mBleWrapper.getCharacteristicsForService(service);
+                mBTServices.add(service);
 
         }
+
+        //now that we have the array of services, we need to pull one that has the uuid we're looking for
+//        BluetoothGattService service = mBTServices.get();
     }
 
 
@@ -173,8 +174,7 @@ public class LinkCapActivity extends AppCompatActivity implements BleWrapperUiCa
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                mDeviceStatus.setText("connected");
-                invalidateOptionsMenu();
+                Log.d(TAG, "in uiDeviceConnected");
             }
         });
     }
@@ -185,7 +185,7 @@ public class LinkCapActivity extends AppCompatActivity implements BleWrapperUiCa
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                mDeviceStatus.setText("disconnected");
+                Log.d(TAG, "device has been disconnected");
 
             }
         });
@@ -203,8 +203,8 @@ public class LinkCapActivity extends AppCompatActivity implements BleWrapperUiCa
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                mDeviceRSSI = rssi + " db";
-                mDeviceRssiView.setText(mDeviceRSSI);
+//                mDeviceRSSI = rssi + " db";
+//                mDeviceRssiView.setText(mDeviceRSSI);
             }
         });
     }
@@ -227,7 +227,7 @@ public class LinkCapActivity extends AppCompatActivity implements BleWrapperUiCa
 
 
 
-
+    //TODO this is where I left off. now hook up to characteristic.
     public void uiCharacteristicForService(final BluetoothGatt gatt,
                                            final BluetoothDevice device,
                                            final BluetoothGattService service,
@@ -236,6 +236,7 @@ public class LinkCapActivity extends AppCompatActivity implements BleWrapperUiCa
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
+                Log.d(TAG, "wer are getting characteristics");
 //                mCharacteristicsListAdapter.clearList();
 //                mListType = LinkCapActivity.ListType.GATT_CHARACTERISTICS;
 //                mListView.setAdapter(mCharacteristicsListAdapter);
