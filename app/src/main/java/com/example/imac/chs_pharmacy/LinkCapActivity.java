@@ -15,6 +15,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.UUID;
@@ -35,19 +36,14 @@ public class LinkCapActivity extends AppCompatActivity implements BleWrapperUiCa
     TextView tv6;
 
 
-
-    public enum ListType {
-        GATT_SERVICES,
-        GATT_CHARACTERISTICS,
-        GATT_CHARACTERISTIC_DETAILS
-    }
-
-    private LinkCapActivity.ListType mListType = LinkCapActivity.ListType.GATT_SERVICES;
     private String mDeviceName;
     private String mDeviceAddress;
     private String mDeviceRSSI;
 
     private BleWrapper mBleWrapper;
+
+    //holds array of all the services we have
+    private ArrayList<BluetoothGattService> mBTServices;
 
     private TextView mDeviceNameView;
     private TextView mDeviceAddressView;
@@ -57,9 +53,6 @@ public class LinkCapActivity extends AppCompatActivity implements BleWrapperUiCa
     private View mListViewHeader;
     private TextView mHeaderTitle;
     private TextView mHeaderBackButton;
-    private ServicesListAdapter mServicesListAdapter = null;
-    private CharacteristicsListAdapter mCharacteristicsListAdapter = null;
-    private CharacteristicDetailsAdapter mCharDetailsAdapter = null;
     private static final String TAG = "Patient";
 
     final static public UUID CAP_SERVICE  = UUID.fromString("0000180a-0000-1000-8000-00805f9b34fb");
@@ -73,40 +66,12 @@ public class LinkCapActivity extends AppCompatActivity implements BleWrapperUiCa
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_link_cap);
 
+        mBTServices  = new ArrayList<BluetoothGattService>();
 
+        //for now just display the name and rxid
         Patient p = Patient.getInstance();
         final String patName = p.getPatientName();
         String rxid = p.getRxid();
-
-        Button btn = (Button) findViewById(R.id.confirm);
-        btn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-                byte[] writeKeyName = parseHexStringToBytes("age");
-                byte[] writeValueName = parseHexStringToBytes(patName);
-
-                BluetoothGatt gatt;
-
-                gatt = mBleWrapper.getGatt();
-
-
-                BluetoothGattCharacteristic k;
-                BluetoothGattCharacteristic value;
-
-                //service is the 180b
-                //characteristic is what we need to write to
-                //will need to write to two services. one for the key, the other for the value
-
-                //write to key
-                k = gatt.getService(CAP_SERVICE).getCharacteristic(CREATE_KEY);
-                mBleWrapper.writeDataToCharacteristic(k, writeKeyName);
-
-//                //now to write the value
-//                value = gatt.getService(hard_service).getCharacteristic(new_key);
-//                mBleWrapper.writeDataToCharacteristic(value, writeValueName);
-
-            }});
 
         final Intent intent = getIntent();
         mDeviceName = intent.getStringExtra(EXTRAS_DEVICE_NAME);
@@ -130,6 +95,61 @@ public class LinkCapActivity extends AppCompatActivity implements BleWrapperUiCa
 
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if(mBleWrapper == null) mBleWrapper = new BleWrapper(this, this);
+
+        if(!mBleWrapper.initialize()) {
+            finish();
+        }
+
+        // start automatically connecting to the device
+        mBleWrapper.connect(mDeviceAddress);
+
+        uiAvailableServices(mBleWrapper.getGatt(), mBleWrapper.getDevice(), mBleWrapper.getCachedServices());
+
+    }
+
+
+
+    //add each service to the services array
+    public void uiAvailableServices(final BluetoothGatt gatt,
+                                    final BluetoothDevice device,
+                                    final List<BluetoothGattService> services)
+    {
+//                for(BluetoothGattService service : mBleWrapper.getCachedServices()) {
+//                    mBTServices.add(service);
+//                    //output service stuff here
+//                    String uuid = service.getUuid().toString().toLowerCase(Locale.getDefault());
+//                    Log.d(TAG, uuid);
+//                }
+
+
+                //services aren't showing up here
+                for (BluetoothGattService service : services)
+                {
+//                    String serviceName = BleNamesResolver.resolveUuid(service.getUuid().toString());
+//                    Log.d(TAG, serviceName);
+
+                    String uuid = service.getUuid().toString().toLowerCase(Locale.getDefault());
+                    Log.d(TAG, uuid);
+
+
+//                    mBleWrapper.getCharacteristicsForService(service);
+
+                }
+        }
+
+
+
+    //button is clicked, this is where it all starts
+    public void confirmData(View v){
+        //now with the device connected, we need to set the service
+//        BluetoothGattService service = mBTServices.get(index);
+//        mBleWrapper.getCharacteristicsForService(service);
+
+    }
 
     public byte[] parseHexStringToBytes(final String hex) {
         String tmp = hex.substring(2).replaceAll("[^[0-9][a-f]]", "");
@@ -166,16 +186,7 @@ public class LinkCapActivity extends AppCompatActivity implements BleWrapperUiCa
             @Override
             public void run() {
                 mDeviceStatus.setText("disconnected");
-                mServicesListAdapter.clearList();
-                mCharacteristicsListAdapter.clearList();
-                mCharDetailsAdapter.clearCharacteristic();
 
-                invalidateOptionsMenu();
-
-                mHeaderTitle.setText("");
-                mHeaderBackButton.setVisibility(View.INVISIBLE);
-                mListType = LinkCapActivity.ListType.GATT_SERVICES;
-                mListView.setAdapter(mServicesListAdapter);
             }
         });
     }
@@ -207,7 +218,7 @@ public class LinkCapActivity extends AppCompatActivity implements BleWrapperUiCa
             @Override
             public void run() {
                 // at this moment we only need to send this "signal" do characteristic's details view
-                mCharDetailsAdapter.setNotificationEnabledForService(ch);
+//                mCharDetailsAdapter.setNotificationEnabledForService(ch);
             }
         });
     }
@@ -216,26 +227,6 @@ public class LinkCapActivity extends AppCompatActivity implements BleWrapperUiCa
 
 
 
-    public void uiAvailableServices(final BluetoothGatt gatt,
-                                    final BluetoothDevice device,
-                                    final List<BluetoothGattService> services)
-    {
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                mServicesListAdapter.clearList();
-                mListType = LinkCapActivity.ListType.GATT_SERVICES;
-                mListView.setAdapter(mServicesListAdapter);
-                mHeaderTitle.setText(mDeviceName + "\'s services:");
-                mHeaderBackButton.setVisibility(View.INVISIBLE);
-
-                for(BluetoothGattService service : mBleWrapper.getCachedServices()) {
-                    mServicesListAdapter.addService(service);
-                }
-                mServicesListAdapter.notifyDataSetChanged();
-            }
-        });
-    }
 
     public void uiCharacteristicForService(final BluetoothGatt gatt,
                                            final BluetoothDevice device,
@@ -245,16 +236,16 @@ public class LinkCapActivity extends AppCompatActivity implements BleWrapperUiCa
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                mCharacteristicsListAdapter.clearList();
-                mListType = LinkCapActivity.ListType.GATT_CHARACTERISTICS;
-                mListView.setAdapter(mCharacteristicsListAdapter);
-                mHeaderTitle.setText(BleNamesResolver.resolveServiceName(service.getUuid().toString().toLowerCase(Locale.getDefault())) + "\'s characteristics:");
-                mHeaderBackButton.setVisibility(View.VISIBLE);
-
-                for(BluetoothGattCharacteristic ch : chars) {
-                    mCharacteristicsListAdapter.addCharacteristic(ch);
-                }
-                mCharacteristicsListAdapter.notifyDataSetChanged();
+//                mCharacteristicsListAdapter.clearList();
+//                mListType = LinkCapActivity.ListType.GATT_CHARACTERISTICS;
+//                mListView.setAdapter(mCharacteristicsListAdapter);
+//                mHeaderTitle.setText(BleNamesResolver.resolveServiceName(service.getUuid().toString().toLowerCase(Locale.getDefault())) + "\'s characteristics:");
+//                mHeaderBackButton.setVisibility(View.VISIBLE);
+//
+//                for(BluetoothGattCharacteristic ch : chars) {
+//                    mCharacteristicsListAdapter.addCharacteristic(ch);
+//                }
+//                mCharacteristicsListAdapter.notifyDataSetChanged();
             }
         });
     }
@@ -267,13 +258,13 @@ public class LinkCapActivity extends AppCompatActivity implements BleWrapperUiCa
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                mListType = LinkCapActivity.ListType.GATT_CHARACTERISTIC_DETAILS;
-                mListView.setAdapter(mCharDetailsAdapter);
-                mHeaderTitle.setText(BleNamesResolver.resolveCharacteristicName(characteristic.getUuid().toString().toLowerCase(Locale.getDefault())) + "\'s details:");
-                mHeaderBackButton.setVisibility(View.VISIBLE);
-
-                mCharDetailsAdapter.setCharacteristic(characteristic);
-                mCharDetailsAdapter.notifyDataSetChanged();
+//                mListType = LinkCapActivity.ListType.GATT_CHARACTERISTIC_DETAILS;
+//                mListView.setAdapter(mCharDetailsAdapter);
+//                mHeaderTitle.setText(BleNamesResolver.resolveCharacteristicName(characteristic.getUuid().toString().toLowerCase(Locale.getDefault())) + "\'s details:");
+//                mHeaderBackButton.setVisibility(View.VISIBLE);
+//
+//                mCharDetailsAdapter.setCharacteristic(characteristic);
+//                mCharDetailsAdapter.notifyDataSetChanged();
             }
         });
     }
@@ -287,14 +278,14 @@ public class LinkCapActivity extends AppCompatActivity implements BleWrapperUiCa
                                             final byte[] rawValue,
                                             final String timestamp)
     {
-        if(mCharDetailsAdapter == null || mCharDetailsAdapter.getCharacteristic(0) == null) return;
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                mCharDetailsAdapter.newValueForCharacteristic(characteristic, strValue, intValue, rawValue, timestamp);
-                mCharDetailsAdapter.notifyDataSetChanged();
-            }
-        });
+//        if(mCharDetailsAdapter == null || mCharDetailsAdapter.getCharacteristic(0) == null) return;
+//        runOnUiThread(new Runnable() {
+//            @Override
+//            public void run() {
+//                mCharDetailsAdapter.newValueForCharacteristic(characteristic, strValue, intValue, rawValue, timestamp);
+//                mCharDetailsAdapter.notifyDataSetChanged();
+//            }
+//        });
     }
 
     public void uiSuccessfulWrite(final BluetoothGatt gatt,
@@ -325,13 +316,4 @@ public class LinkCapActivity extends AppCompatActivity implements BleWrapperUiCa
         });
     }
 
-    private void connectViewsVariables() {
-//        mDeviceNameView = (TextView) findViewById(R.id.peripheral_name);
-//        mDeviceAddressView = (TextView) findViewById(R.id.peripheral_address);
-//        mDeviceRssiView = (TextView) findViewById(R.id.peripheral_rssi);
-//        mDeviceStatus = (TextView) findViewById(R.id.peripheral_status);
-////        mListView = (ListView) findViewById(R.id.listView);
-//        mHeaderTitle = (TextView) mListViewHeader.findViewById(R.id.peripheral_service_list_title);
-//        mHeaderBackButton = (TextView) mListViewHeader.findViewById(R.id.peripheral_list_service_back);
-    }
 }

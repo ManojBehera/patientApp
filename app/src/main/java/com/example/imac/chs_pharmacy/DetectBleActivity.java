@@ -120,9 +120,12 @@ public class DetectBleActivity extends ListActivity {
     //instead of firing off a new intent, need to start writing data to this device
     @Override
     protected void onListItemClick(ListView l, View v, int position, long id) {
+
+        //creates the device based on position. calls DeviceListAdapter.
         final BluetoothDevice device = mDevicesListAdapter.getDevice(position);
         if (device == null) return;
 
+        //for now, keep the link cap view. so, lets move on to that activity with the info from cap
         final Intent intent = new Intent(this, LinkCapActivity.class);
         intent.putExtra(LinkCapActivity.EXTRAS_DEVICE_NAME, device.getName());
         intent.putExtra(LinkCapActivity.EXTRAS_DEVICE_ADDRESS, device.getAddress());
@@ -136,6 +139,14 @@ public class DetectBleActivity extends ListActivity {
 
         startActivity(intent);
     }
+
+
+
+
+
+
+
+
 
     /* check if user agreed to enable BT */
     @Override
