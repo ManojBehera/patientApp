@@ -59,10 +59,19 @@ public class LinkCapActivity extends AppCompatActivity implements BleWrapperUiCa
     private View mListViewHeader;
     private TextView mHeaderTitle;
     private TextView mHeaderBackButton;
-    private String curCharacteristic = "3000";
-    private String curWriteValue = "Age";
+
+    //we know that the first characteristic will be 3000
+    private String curCharacteristic = "3001";
+
+
+    private String curWriteValue;
     public UUID thisUUID;
-    private static final String TAG = "Patient";
+    private static final String TAG = "LinkCap";
+    public BluetoothGattCharacteristic charKey;
+    public BluetoothGattCharacteristic charValue;
+
+
+    public BluetoothGattCharacteristic thisChar;
 
     final static public UUID CAP_SERVICE  = UUID.fromString("0000180b-0000-1000-8000-00805f9b34fb");
     final static public UUID CREATE_KEY   = UUID.fromString("00003001-0000-1000-8000-00805f9b34fb");
@@ -122,6 +131,7 @@ public class LinkCapActivity extends AppCompatActivity implements BleWrapperUiCa
     public void confirmData(View v){
         if (mBleWrapper.connect(mDeviceAddress)) {
             Log.d(TAG, "we are connected!");
+
         }
 
     }
@@ -146,6 +156,9 @@ public class LinkCapActivity extends AppCompatActivity implements BleWrapperUiCa
         }
     }
 
+
+    //this changes between 3000 and 3001
+    //this function needs to save both characteristics. it doesn't matter which one is set right now
     public void uiCharacteristicForService(final BluetoothGatt gatt,
                                            final BluetoothDevice device,
                                            final BluetoothGattService service,
@@ -154,37 +167,37 @@ public class LinkCapActivity extends AppCompatActivity implements BleWrapperUiCa
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                Log.d(TAG, "wer are getting characteristics");
-
-                //write the value
-                if (curCharacteristic.equals("3000"))
-                {
-                    Log.d(TAG, "current set to 3000");
-                    thisUUID   = UUID.fromString("00003000-0000-1000-8000-00805f9b34fb");
-
-                }
-
-                //write the attribute
-                else if (curCharacteristic.equals("3001")) {
-                    Log.d(TAG, "current set to 3001");
-                    thisUUID   = UUID.fromString("00003001-0000-1000-8000-00805f9b34fb");
-                }
+                Log.d(TAG, "we are getting characteristics");
 
                 for(BluetoothGattCharacteristic ch : chars) {
 
                     //if the characteristic id is 3001, it is where we need to write the key of attribute
-                    if (ch.getUuid().equals(thisUUID))
+                    if (ch.getUuid().equals(CREATE_KEY))
                     {
-                        Log.d(TAG,  "found our characteristic");
-                        //send characteristic to the blewrapper to get the details of it
-                        uiCharacteristicsDetails(mBleWrapper.getGatt(), mBleWrapper.getDevice(), mBleWrapper.getCachedService(), ch);
+                        Log.d(TAG,  "found 3001");
+
+                        charKey = ch;
+
                     }
+
+                    if (ch.getUuid().equals(CREATE_VALUE))
+                    {
+                        Log.d(TAG,  "found 3000");
+
+                        charValue = ch;
+
+                    }
+
 
                     String uuid = ch.getUuid().toString().toLowerCase(Locale.getDefault());
                     Log.d(TAG, uuid + "characteristic");
                     //add characteristics to the array for storage
 //                    mCharacteristics.add(ch);
                 }
+
+                //this function should only be called once. store 3000, but act on 3001 right now
+                //we have our characteristics stored, now lets initiate the first one
+                uiCharacteristicsDetails(mBleWrapper.getGatt(), mBleWrapper.getDevice(), mBleWrapper.getCachedService(), charKey);
 
             }
         });
@@ -200,9 +213,49 @@ public class LinkCapActivity extends AppCompatActivity implements BleWrapperUiCa
             @Override
             public void run() {
                 //write to the variable characteristic with variable value
-                mBleWrapper.writeDataToCharacteristic(characteristic, curWriteValue);
+
+                //here we need to call a function that gives us the current write value
+                //call the patient class to get the next write value
+
+                //now we are going to write the characteristic
+                //call patient to get the one we need to write to first
+                Patient p = Patient.getInstance();
+                curWriteValue = p.getNextWriteValue();
+
+                if (curWriteValue == "none") {
+                    //we're done here, close the connection
+                    mBleWrapper.diconnect();
+                }
+                else {
+                    mBleWrapper.writeDataToCharacteristic(characteristic, curWriteValue);
+                }
             }
         });
+    }
+
+    //this should be called after writedatatocharacteristic
+    public void uiSuccessfulWrite(final BluetoothGatt gatt,
+                                  final BluetoothDevice device,
+                                  final BluetoothGattService service,
+                                  final BluetoothGattCharacteristic ch,
+                                  final String description)
+    {
+
+        //start the next characteristic write. need to change the characteristic to the other one
+        if (curCharacteristic == "3000"){
+            Log.d(TAG, "changing to char 3001");
+            curCharacteristic = "3001";
+             thisChar = charKey;
+        }
+
+        else if (curCharacteristic == "3001"){
+            Log.d(TAG, "changing to char 3000");
+            curCharacteristic = "3000";
+             thisChar = charValue;
+        }
+
+        //call the next write funciton. we need to
+        uiCharacteristicsDetails(mBleWrapper.getGatt(), mBleWrapper.getDevice(), mBleWrapper.getCachedService(), thisChar);
     }
 
 
@@ -220,6 +273,14 @@ public class LinkCapActivity extends AppCompatActivity implements BleWrapperUiCa
     public void uiDeviceDisconnected(final BluetoothGatt gatt,
                                      final BluetoothDevice device)
     {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                Toast.makeText(getApplicationContext(), "Writing to cap was finished successfully!", Toast.LENGTH_LONG).show();
+            }
+
+            //after write, we need to move on to the next value
+        });
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
@@ -275,22 +336,7 @@ public class LinkCapActivity extends AppCompatActivity implements BleWrapperUiCa
         Log.d(TAG, strValue);
     }
 
-    //this should be called after writedatatocharacteristic
-    public void uiSuccessfulWrite(final BluetoothGatt gatt,
-                                  final BluetoothDevice device,
-                                  final BluetoothGattService service,
-                                  final BluetoothGattCharacteristic ch,
-                                  final String description)
-    {
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                Toast.makeText(getApplicationContext(), "Writing to " + description + " was finished successfully!", Toast.LENGTH_LONG).show();
-            }
 
-            //after write, we need to move on to the next value
-        });
-    }
 
     //this should be called after writedatatocharacteristic
     public void uiFailedWrite(final BluetoothGatt gatt,

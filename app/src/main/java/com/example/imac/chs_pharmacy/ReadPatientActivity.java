@@ -75,34 +75,34 @@ public class ReadPatientActivity extends AppCompatActivity {
                 String nameString = name.getText().toString();
 
                 patient_id   = (EditText)findViewById(R.id.textView3);
-                String patIdString = name.getText().toString();
+                String patIdString = patient_id.getText().toString();
 
                 quantity   = (EditText)findViewById(R.id.textView4);
-                String qtyString = name.getText().toString();
+                String qtyString = quantity.getText().toString();
 
                 refills   = (EditText)findViewById(R.id.textView5);
-                String refillString = name.getText().toString();
+                String refillString = refills.getText().toString();
 
                 address   = (EditText)findViewById(R.id.textView6);
-                String addressString = name.getText().toString();
+                String addressString = address.getText().toString();
 
                 city   = (EditText)findViewById(R.id.textView7);
-                String cityString = name.getText().toString();
+                String cityString = city.getText().toString();
 
                 state   = (EditText)findViewById(R.id.textView8);
-                String stateString = name.getText().toString();
+                String stateString = state.getText().toString();
 
                 zip   = (EditText)findViewById(R.id.textView9);
-                String zipString = name.getText().toString();
+                String zipString = zip.getText().toString();
 
                 label   = (EditText)findViewById(R.id.textView10);
-                String labelString = name.getText().toString();
+                String labelString = label.getText().toString();
 
                 dosage   = (EditText)findViewById(R.id.textView11);
-                String dosageString = name.getText().toString();
+                String dosageString = dosage.getText().toString();
 
                 ndc   = (EditText)findViewById(R.id.textView12);
-                String ndcString = name.getText().toString();
+                String ndcString = ndc.getText().toString();
 
                 //create instance of singleton and save attributes
                 Patient p = Patient.getInstance();

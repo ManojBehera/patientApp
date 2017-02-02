@@ -280,7 +280,7 @@
 
     <Button android:id="@+id/bleButton"
         android:layout_width="349dp"
-        android:layout_height="wrap_content"
+        android:layout_height="36dp"
         android:text="@string/find_ble"
         android:onClick="findBle"/>
 </LinearLayout>
