@@ -104,7 +104,6 @@ public class MainActivity extends Activity {
     }
 
 
-
 //    /** Called when the user clicks the Send button */
     public void sendMessage(String scanned) {
         Intent intent = new Intent(this, ReadPatientActivity.class);

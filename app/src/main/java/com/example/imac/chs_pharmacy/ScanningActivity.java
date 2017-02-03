@@ -118,10 +118,10 @@ public class ScanningActivity extends ListActivity {
         final BluetoothDevice device = mDevicesListAdapter.getDevice(position);
         if (device == null) return;
 
-        final Intent intent = new Intent(this, LinkCapActivity.class);
-        intent.putExtra(LinkCapActivity.EXTRAS_DEVICE_NAME, device.getName());
-        intent.putExtra(LinkCapActivity.EXTRAS_DEVICE_ADDRESS, device.getAddress());
-        intent.putExtra(LinkCapActivity.EXTRAS_DEVICE_RSSI, mDevicesListAdapter.getRssi(position));
+        final Intent intent = new Intent(this, ScanningActivity.class);
+        intent.putExtra(ScanningActivity.EXTRAS_DEVICE_NAME, device.getName());
+        intent.putExtra(ScanningActivity.EXTRAS_DEVICE_ADDRESS, device.getAddress());
+        intent.putExtra(ScanningActivity.EXTRAS_DEVICE_RSSI, mDevicesListAdapter.getRssi(position));
 
 
         startActivity(intent);
