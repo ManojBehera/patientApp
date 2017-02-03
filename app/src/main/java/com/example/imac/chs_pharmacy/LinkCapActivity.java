@@ -69,13 +69,16 @@ public class LinkCapActivity extends AppCompatActivity implements BleWrapperUiCa
     private static final String TAG = "LinkCap";
     public BluetoothGattCharacteristic charKey;
     public BluetoothGattCharacteristic charValue;
-
+    public BluetoothGattCharacteristic timeZone;
+    public BluetoothGattCharacteristic doseSchedule;
 
     public BluetoothGattCharacteristic thisChar;
 
     final static public UUID CAP_SERVICE  = UUID.fromString("0000180b-0000-1000-8000-00805f9b34fb");
     final static public UUID CREATE_KEY   = UUID.fromString("00003001-0000-1000-8000-00805f9b34fb");
     final static public UUID CREATE_VALUE   = UUID.fromString("00003000-0000-1000-8000-00805f9b34fb");
+    final static public UUID TIME_ZONE   = UUID.fromString("00003005-0000-1000-8000-00805f9b34fb");
+    final static public UUID SCHEDULE   = UUID.fromString("00003006-0000-1000-8000-00805f9b34fb");
 
 
 
@@ -184,6 +187,18 @@ public class LinkCapActivity extends AppCompatActivity implements BleWrapperUiCa
                         charValue = ch;
                     }
 
+                    if (ch.getUuid().equals(TIME_ZONE))
+                    {
+                        Log.d(TAG,  "found 3005");
+                        timeZone = ch;
+                    }
+
+                    if (ch.getUuid().equals(SCHEDULE))
+                    {
+                        Log.d(TAG,  "found 3005");
+                        doseSchedule = ch;
+                    }
+
                     String uuid = ch.getUuid().toString().toLowerCase(Locale.getDefault());
                     Log.d(TAG, uuid + "characteristic");
 
@@ -217,8 +232,13 @@ public class LinkCapActivity extends AppCompatActivity implements BleWrapperUiCa
                 curWriteValue = p.getNextWriteValue();
 
                 if (curWriteValue == "none") {
-                    //we're done here, close the connection
-                    mBleWrapper.diconnect();
+                    //we're done here, now we need to write 3005 and 3006
+                    //write to 3005
+                    curCharacteristic = "3005";
+                    Long tsLong = System.currentTimeMillis()/1000;
+                    String ts = tsLong.toString();
+                    mBleWrapper.writeDataToCharacteristic(timeZone, ts);
+
                 }
                 else {
                     mBleWrapper.writeDataToCharacteristic(characteristic, curWriteValue);
@@ -242,11 +262,21 @@ public class LinkCapActivity extends AppCompatActivity implements BleWrapperUiCa
              thisChar = charKey;
         }
 
-        else if (curCharacteristic == "3001"){
+         if (curCharacteristic == "3001"){
             Log.d(TAG, "changing to char 3000");
             curCharacteristic = "3000";
              thisChar = charValue;
         }
+
+        if (curCharacteristic == "3005") {
+            //now we need to write to 3006
+            curCharacteristic = "3006";
+            mBleWrapper.diconnect();
+        }
+//
+//        if (curCharacteristic == "3006") {
+//
+//        }
 
         //call the next write funciton. we need to
         uiCharacteristicsDetails(mBleWrapper.getGatt(), mBleWrapper.getDevice(), mBleWrapper.getCachedService(), thisChar);

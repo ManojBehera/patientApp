@@ -13,8 +13,8 @@
     <DosageText>USE AS DIRECTED</DosageText>
     <NDC>123456789</NDC>
     <HOAList>
-        <HOA>0800</HOA>
-        <HOA>NOON</HOA>
-        <HOA>1700</HOA>
+        <HOA1>0800</HOA1>
+        <HOA2>NOON</HOA2>
+        <HOA3>1700</HOA3>
     </HOAList>
 </Prescription>

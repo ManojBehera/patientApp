@@ -21,7 +21,7 @@ import android.util.Log;
 //need to create a model based on the xml. the pharmicist should be able to overwrite everything right now and save the updated data to the model
 
 public class ReadPatientActivity extends AppCompatActivity {
-    private static final String TAG = "Patient";
+    private static final String TAG = "ReadPatient";
     TextView tv;
     TextView tv2;
     TextView tv3;
@@ -34,6 +34,9 @@ public class ReadPatientActivity extends AppCompatActivity {
     TextView tv10;
     TextView tv11;
     TextView tv12;
+    TextView tv13;
+    TextView tv14;
+    TextView tv15;
 
     EditText name;
     EditText rxid;
@@ -47,6 +50,9 @@ public class ReadPatientActivity extends AppCompatActivity {
     EditText label;
     EditText dosage;
     EditText ndc;
+    EditText HOA1;
+    EditText HOA2;
+    EditText HOA3;
 
 
 
@@ -59,6 +65,9 @@ public class ReadPatientActivity extends AppCompatActivity {
 
         //this is the code scanned
         String message = intent.getStringExtra(MainActivity.EXTRA_MESSAGE);
+
+        //message is passing as null
+        Log.d(TAG, message + "scanned");
         TextView textView = new TextView(this);
         textView.setTextSize(40);
 
@@ -104,6 +113,15 @@ public class ReadPatientActivity extends AppCompatActivity {
                 ndc   = (EditText)findViewById(R.id.textView12);
                 String ndcString = ndc.getText().toString();
 
+                HOA1   = (EditText)findViewById(R.id.textView13);
+                String HOA1STRING = HOA1.getText().toString();
+
+                HOA2   = (EditText)findViewById(R.id.textView14);
+                String HOA2STRING = HOA2.getText().toString();
+
+                HOA3   = (EditText)findViewById(R.id.textView15);
+                String HOA3STRING = HOA3.getText().toString();
+
                 //create instance of singleton and save attributes
                 Patient p = Patient.getInstance();
 
@@ -141,6 +159,9 @@ public class ReadPatientActivity extends AppCompatActivity {
         tv10=(TextView)findViewById(R.id.textView10);
         tv11=(TextView)findViewById(R.id.textView11);
         tv12=(TextView)findViewById(R.id.textView12);
+        tv13=(TextView)findViewById(R.id.textView13);
+        tv14=(TextView)findViewById(R.id.textView14);
+        tv15=(TextView)findViewById(R.id.textView15);
 
         try {
             InputStream is = getAssets().open(message+".xml");
@@ -153,12 +174,13 @@ public class ReadPatientActivity extends AppCompatActivity {
             element.normalize();
 
             NodeList nList = doc.getElementsByTagName("Prescription");
-
+            
             for (int i=0; i<nList.getLength(); i++) {
 
                 Node node = nList.item(i);
                 if (node.getNodeType() == Node.ELEMENT_NODE) {
                     Element element2 = (Element) node;
+
 
                     //setting the values to the variables
                     tv2.setText( getValue("Name", element2));
@@ -175,7 +197,9 @@ public class ReadPatientActivity extends AppCompatActivity {
                     tv12.setText(getValue("NDC", element2));
 
                 }
+
             }
+
 
         } catch (Exception e) {e.printStackTrace();}
 
