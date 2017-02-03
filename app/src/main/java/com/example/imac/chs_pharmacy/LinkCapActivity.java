@@ -175,24 +175,18 @@ public class LinkCapActivity extends AppCompatActivity implements BleWrapperUiCa
                     if (ch.getUuid().equals(CREATE_KEY))
                     {
                         Log.d(TAG,  "found 3001");
-
                         charKey = ch;
-
                     }
 
                     if (ch.getUuid().equals(CREATE_VALUE))
                     {
                         Log.d(TAG,  "found 3000");
-
                         charValue = ch;
-
                     }
-
 
                     String uuid = ch.getUuid().toString().toLowerCase(Locale.getDefault());
                     Log.d(TAG, uuid + "characteristic");
-                    //add characteristics to the array for storage
-//                    mCharacteristics.add(ch);
+
                 }
 
                 //this function should only be called once. store 3000, but act on 3001 right now
@@ -295,6 +289,7 @@ public class LinkCapActivity extends AppCompatActivity implements BleWrapperUiCa
         // no need to handle that in this Activity (here, we are not scanning)
     }
 
+    //triggered when rssi is a different value?
     public void uiNewRssiAvailable(final BluetoothGatt gatt,
                                    final BluetoothDevice device,
                                    final int rssi)
@@ -302,12 +297,11 @@ public class LinkCapActivity extends AppCompatActivity implements BleWrapperUiCa
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-//                mDeviceRSSI = rssi + " db";
-//                mDeviceRssiView.setText(mDeviceRSSI);
             }
         });
     }
 
+    //
     public void uiGotNotification(final BluetoothGatt gatt,
                                   final BluetoothDevice device,
                                   final BluetoothGattService service,
@@ -323,6 +317,7 @@ public class LinkCapActivity extends AppCompatActivity implements BleWrapperUiCa
     }
 
 
+    //called when a new characteristic is finished writing?
     public void uiNewValueForCharacteristic(final BluetoothGatt gatt,
                                             final BluetoothDevice device,
                                             final BluetoothGattService service,
