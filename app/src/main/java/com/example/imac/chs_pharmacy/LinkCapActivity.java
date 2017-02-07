@@ -156,6 +156,7 @@ public class LinkCapActivity extends AppCompatActivity implements BleWrapperUiCa
             Log.d(TAG, uuid + "available service");
 //                mBTServices.add(service);
 
+
         }
     }
 
