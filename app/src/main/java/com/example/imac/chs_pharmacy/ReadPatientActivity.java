@@ -1,5 +1,6 @@
 package com.example.imac.chs_pharmacy;
 
+import android.bluetooth.BluetoothGattService;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 
@@ -13,10 +14,16 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+
+import java.io.ByteArrayInputStream;
+import java.io.File;
 import java.io.InputStream;
+import java.util.ArrayList;
+
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import android.util.Log;
+
 
 //need to create a model based on the xml. the pharmicist should be able to overwrite everything right now and save the updated data to the model
 
@@ -35,8 +42,8 @@ public class ReadPatientActivity extends AppCompatActivity {
     TextView tv11;
     TextView tv12;
     TextView tv13;
-    TextView tv14;
-    TextView tv15;
+//    TextView tv14;
+//    TextView tv15;
 
     EditText name;
     EditText rxid;
@@ -50,7 +57,7 @@ public class ReadPatientActivity extends AppCompatActivity {
     EditText label;
     EditText dosage;
     EditText ndc;
-    EditText HOA1;
+    EditText npi;
     EditText HOA2;
     EditText HOA3;
 
@@ -62,6 +69,9 @@ public class ReadPatientActivity extends AppCompatActivity {
         setContentView(R.layout.activity_read_patient);
 
         Intent intent = getIntent();
+
+        //clear out array in Patient
+
 
         //this is the code scanned
         String message = intent.getStringExtra(MainActivity.EXTRA_MESSAGE);
@@ -113,19 +123,14 @@ public class ReadPatientActivity extends AppCompatActivity {
                 ndc   = (EditText)findViewById(R.id.textView12);
                 String ndcString = ndc.getText().toString();
 
-                HOA1   = (EditText)findViewById(R.id.textView13);
-                String HOA1STRING = HOA1.getText().toString();
-
-                HOA2   = (EditText)findViewById(R.id.textView14);
-                String HOA2STRING = HOA2.getText().toString();
-
-                HOA3   = (EditText)findViewById(R.id.textView15);
-                String HOA3STRING = HOA3.getText().toString();
+                npi   = (EditText)findViewById(R.id.textView13);
+                String npistring = npi.getText().toString();
 
                 //create instance of singleton and save attributes
                 Patient p = Patient.getInstance();
-
+                p.resetWriteValues();
                 p.setPatientName(nameString);
+                p.setNPI(npistring);
                 p.setRxid(rxidString);
                 p.setPatient_id(patIdString);
                 p.setQuantity(qtyString);
@@ -144,8 +149,6 @@ public class ReadPatientActivity extends AppCompatActivity {
             }
         });
 
-
-
         //setting variables to text views
         tv2=(TextView)findViewById(R.id.textView2);
         tv=(TextView)findViewById(R.id.textView1);
@@ -160,58 +163,111 @@ public class ReadPatientActivity extends AppCompatActivity {
         tv11=(TextView)findViewById(R.id.textView11);
         tv12=(TextView)findViewById(R.id.textView12);
         tv13=(TextView)findViewById(R.id.textView13);
-        tv14=(TextView)findViewById(R.id.textView14);
-        tv15=(TextView)findViewById(R.id.textView15);
+//        tv14=(TextView)findViewById(R.id.textView14);
+//        tv15=(TextView)findViewById(R.id.textView15);
 
         try {
-            InputStream is = getAssets().open(message+".xml");
-
+            Log.d(TAG, "going to try looping through"+message);
+//            File fXmlFile = new File(message + ".xml");
+            InputStream fXmlFile = getAssets().open(message+".xml");
             DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
             DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
-            Document doc = dBuilder.parse(is);
+            Document doc = dBuilder.parse(fXmlFile);
 
-            Element element=doc.getDocumentElement();
-            element.normalize();
+            //make a list of all the prescription nodes. this will only be one.
+            NodeList rootElement = doc.getElementsByTagName("Prescription");
 
-            NodeList nList = doc.getElementsByTagName("Prescription");
-            
-            for (int i=0; i<nList.getLength(); i++) {
+            //this loop should only fire once since it's going through all prescription nodes
+            for (int j = 0; j < rootElement.getLength(); j++) {
+                Log.d(TAG, "we're at the top level");
 
-                Node node = nList.item(i);
-                if (node.getNodeType() == Node.ELEMENT_NODE) {
-                    Element element2 = (Element) node;
+                //get the array of all the children
+                Node dataRow = rootElement.item(j);
+                NodeList dataList = dataRow.getChildNodes();
+//                Node dataNode = rootElement.item(j);
 
+                //go through each item. will need to check for more children
+                for (int i = 0; i < dataList.getLength(); i++) {
+                    Node detail = dataList.item(i);
 
-                    //setting the values to the variables
-                    tv2.setText( getValue("Name", element2));
-                    tv.setText( getValue("PrescriptionID", element2));
-                    tv3.setText( getValue("PatientID", element2));
-                    tv4.setText( getValue("Quantity", element2));
-                    tv5.setText( getValue("Refills", element2));
-                    tv6.setText( getValue("Address", element2));
-                    tv7.setText(getValue("City", element2));
-                    tv8.setText(getValue("State", element2));
-                    tv9.setText(getValue("Zip", element2));
-                    tv10.setText(getValue("Label", element2));
-                    tv11.setText(getValue("DosageText", element2));
-                    tv12.setText(getValue("NDC", element2));
+                    if (detail.getNodeName().equals("HOAList")) {
+                        Log.d(TAG, "we in da list");
+
+                        NodeList HOAList = detail.getChildNodes();
+                        for (int k = 0; k < HOAList.getLength(); k++) {
+                           Node thistime = HOAList.item(k);
+                            String context = thistime.getTextContent();
+                            //wtf why is it looping through blanks
+                            if (k % 2 == 0) {
+                                // even
+                            }
+                            else {
+                                Log.d(TAG, context+k);
+//                                HOAs.add(context);
+                                Patient p = Patient.getInstance();
+                                p.saveScheduleTime(context);
+                            }
+                    }
+                    }
+//                    tv13.setText(HOAs.get(0));
+//                    tv14.setText(HOAs.get(1));
+//                    tv15.setText(HOAs.get(2));
+//                    for (String hoa : HOAs)
+//                    {
+//                        Log.d(TAG, hoa);
+//                    }
+
+                    if (detail.getNodeName().equals("Name")) {
+                       String letter = detail.getTextContent();
+                        Log.d(TAG, letter);
+                    }
+
+                    if (detail.getNodeName().equals("PrescriptionID")) {
+                        tv.setText(detail.getTextContent());
+
+                    }
+                    if (detail.getNodeName().equals("Name")) {
+                        tv2.setText(detail.getTextContent());
+                    }
+                    if (detail.getNodeName().equals("PatientID")) {
+                        tv3.setText(detail.getTextContent());
+                    }
+                    if (detail.getNodeName().equals("Quantity")) {
+                        tv4.setText(detail.getTextContent());
+                    }
+                    if (detail.getNodeName().equals("Refills")) {
+                        tv5.setText(detail.getTextContent());
+                    }
+                    if (detail.getNodeName().equals("Address")) {
+                        tv6.setText(detail.getTextContent());
+                    }
+                    if (detail.getNodeName().equals("City")) {
+                        tv7.setText(detail.getTextContent());
+                    }
+                    if (detail.getNodeName().equals("State")) {
+                        tv8.setText(detail.getTextContent());
+                    }
+                    if (detail.getNodeName().equals("Zip")) {
+                        tv9.setText(detail.getTextContent());
+                    }
+                    if (detail.getNodeName().equals("Label")) {
+                        tv10.setText(detail.getTextContent());
+                    }
+                    if (detail.getNodeName().equals("DosageText")) {
+                        tv11.setText(detail.getTextContent());
+                    }
+                    if (detail.getNodeName().equals("NDC")) {
+                        tv12.setText(detail.getTextContent());
+                    }
+                    if (detail.getNodeName().equals("NPI")) {
+                        tv13.setText(detail.getTextContent());
+                    }
 
                 }
+                }
 
-            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
-
-        } catch (Exception e) {e.printStackTrace();}
-
-
-    }
-
-    private static String getValue(String tag, Element element) {
-        NodeList nodeList = element.getElementsByTagName(tag).item(0).getChildNodes();
-        Node node = nodeList.item(0);
-        return node.getNodeValue();
-    }
-
-
-}
-
+}}

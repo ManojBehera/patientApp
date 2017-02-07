@@ -23,10 +23,12 @@ public class Patient {
       private String dosage;
       private String ndc;
       private String nextValue;
+      private String NPI;
     private static final String TAG = "Patient";
 
       //each setter sets the value to the array.
       private ArrayList<String> writeData = new ArrayList<>();
+    private ArrayList<String> HOAs = new ArrayList<>();
 
 
     private Patient() {
@@ -43,10 +45,6 @@ public class Patient {
       public String getNextWriteValue() {
 
           //all this needs to do is get the first value, pop it off, and return it
-
-
-          //all values are returning as test patient?
-
           Log.d(TAG, "getting the next write value");
 
           if (!writeData.isEmpty()) {
@@ -62,11 +60,43 @@ public class Patient {
           return nextValue;
       }
 
-    public void setPatientName( String patientName ){
+    public void resetWriteValues() {
+        //this function clears out the array so it doesn't get filled up
+        writeData.clear();
+    }
 
+    public void saveScheduleTime (String time){
+        Log.d(TAG, "saveschedule time is: " + time);
+        HOAs.add(time);
+    }
+
+    public String getScheduleTimes() {
+        Log.d(TAG, "inside schedule times");
+        //iterate through the array and build out a string.
+        //so, for each item, concatenate it on until i = 0 then return string
+        StringBuilder sb = new StringBuilder(14);
+        for (String hoa : HOAs)
+       {
+           sb.append(hoa);
+           Log.d(TAG, hoa);
+       }
+        Log.d(TAG, "getschedule time is: " + sb.toString());
+//        System.out.println(sb.toString());
+        return sb.toString();
+    }
+
+    public void setPatientName( String patientName ){
+        Log.d(TAG, "setting name");
         patient_name = patientName;
-        writeData.add("name");
+        writeData.add("Name");
         writeData.add(patientName);
+    }
+
+    public void setNPI( String npi ){
+        Log.d(TAG, "npi is: " + npi);
+        NPI = npi;
+        writeData.add("NPI");
+        writeData.add(npi);
     }
 
     public String getPatientName( ){
@@ -74,9 +104,9 @@ public class Patient {
     }
 
       public void setRxid( String rxid ){
-
+          Log.d(TAG, "setting rxid");
           rx_id = rxid;
-          writeData.add("rxid");
+          writeData.add("PrescriptionID");
           writeData.add(rxid);
       }
 
@@ -89,8 +119,9 @@ public class Patient {
       }
 
       public void setPatient_id(String patient_id) {
+          Log.d(TAG, "set patid");
           this.patient_id = patient_id;
-          writeData.add("PatId");
+          writeData.add("PatientID");
           writeData.add(patient_id);
       }
 
@@ -99,8 +130,9 @@ public class Patient {
       }
 
       public void setQuantity(String quantity) {
+          Log.d(TAG, "setting qty");
           this.quantity = quantity;
-          writeData.add("quantity");
+          writeData.add("Quantity");
           writeData.add(quantity);
       }
 
@@ -109,8 +141,9 @@ public class Patient {
       }
 
       public void setRefills(String refills) {
+          Log.d(TAG, "setting refills");
           this.refills = refills;
-          writeData.add("refills");
+          writeData.add("Refills");
           writeData.add(refills);
       }
 
@@ -119,8 +152,9 @@ public class Patient {
       }
 
       public void setAddress(String address) {
+          Log.d(TAG, "setting address");
           this.address = address;
-          writeData.add("address");
+          writeData.add("Address");
           writeData.add(address);
       }
 
@@ -129,8 +163,9 @@ public class Patient {
       }
 
       public void setCity(String city) {
+          Log.d(TAG, "setting city");
           this.city = city;
-          writeData.add("city");
+          writeData.add("City");
           writeData.add(city);
       }
 
@@ -139,8 +174,9 @@ public class Patient {
       }
 
       public void setState(String state) {
+          Log.d(TAG, "setting state");
           this.state = state;
-          writeData.add("state");
+          writeData.add("State");
           writeData.add(state);
       }
 
@@ -149,8 +185,9 @@ public class Patient {
       }
 
       public void setZip(String zip) {
+          Log.d(TAG, "setting zip");
           this.zip = zip;
-          writeData.add("zip");
+          writeData.add("Zip");
           writeData.add(zip);
       }
 
@@ -159,8 +196,9 @@ public class Patient {
       }
 
       public void setLabel(String label) {
+          Log.d(TAG, "setting label");
           this.label = label;
-          writeData.add("label");
+          writeData.add("Label");
           writeData.add(label);
       }
 
@@ -169,8 +207,9 @@ public class Patient {
       }
 
       public void setDosage(String dosage) {
+          Log.d(TAG, "setting dosage");
           this.dosage = dosage;
-          writeData.add("dosage");
+          writeData.add("DosageText");
           writeData.add(dosage);
       }
 
@@ -179,8 +218,9 @@ public class Patient {
       }
 
       public void setNdc(String ndc) {
+          Log.d(TAG, "setting ndc");
           this.ndc = ndc;
-          writeData.add("ndc");
+          writeData.add("NDC");
           writeData.add(ndc);
       }
 }

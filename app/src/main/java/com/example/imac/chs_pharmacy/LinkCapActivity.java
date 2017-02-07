@@ -62,6 +62,7 @@ public class LinkCapActivity extends AppCompatActivity implements BleWrapperUiCa
 
     //we know that the first characteristic will be 3000
     private String curCharacteristic = "3001";
+    private String scheduleTimeString;
 
 
     private String curWriteValue;
@@ -86,8 +87,6 @@ public class LinkCapActivity extends AppCompatActivity implements BleWrapperUiCa
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_link_cap);
-
-        mBTServices  = new ArrayList<BluetoothGattService>();
 
         //for now just display the name and rxid
         Patient p = Patient.getInstance();
@@ -134,6 +133,7 @@ public class LinkCapActivity extends AppCompatActivity implements BleWrapperUiCa
     public void confirmData(View v){
         if (mBleWrapper.connect(mDeviceAddress)) {
             Log.d(TAG, "we are connected!");
+            Toast.makeText(getApplicationContext(), "Gathering data...", Toast.LENGTH_LONG).show();
 
         }
 
@@ -154,7 +154,7 @@ public class LinkCapActivity extends AppCompatActivity implements BleWrapperUiCa
                 //add each service to our services array
             String uuid = service.getUuid().toString().toLowerCase(Locale.getDefault());
             Log.d(TAG, uuid + "available service");
-                mBTServices.add(service);
+//                mBTServices.add(service);
 
         }
     }
@@ -174,7 +174,7 @@ public class LinkCapActivity extends AppCompatActivity implements BleWrapperUiCa
 
                 for(BluetoothGattCharacteristic ch : chars) {
 
-                    //if the characteristic id is 3001, it is where we need to write the key of attribute
+                    //Store the characteristics we need
                     if (ch.getUuid().equals(CREATE_KEY))
                     {
                         Log.d(TAG,  "found 3001");
@@ -195,7 +195,7 @@ public class LinkCapActivity extends AppCompatActivity implements BleWrapperUiCa
 
                     if (ch.getUuid().equals(SCHEDULE))
                     {
-                        Log.d(TAG,  "found 3005");
+                        Log.d(TAG,  "found 3006");
                         doseSchedule = ch;
                     }
 
@@ -234,12 +234,29 @@ public class LinkCapActivity extends AppCompatActivity implements BleWrapperUiCa
                 if (curWriteValue == "none") {
                     //we're done here, now we need to write 3005 and 3006
                     //write to 3005
-                    curCharacteristic = "3005";
-                    Long tsLong = System.currentTimeMillis()/1000;
-                    String ts = tsLong.toString();
-                    mBleWrapper.writeDataToCharacteristic(timeZone, ts);
 
+                    //the final call, the scheduling
+                    if (curCharacteristic == "3006") {
+                        Log.d(TAG, "we are at 3006, getting schedule times");
+                        scheduleTimeString = p.getScheduleTimes();
+                        mBleWrapper.writeDataToCharacteristic(characteristic, scheduleTimeString);
+                    }
+                    else if (curCharacteristic == "0000")
+                    {
+                        Log.d(TAG, "why is this being called");
+                        mBleWrapper.diconnect();
+                    }
+                    else {
+                        Log.d(TAG, "we are at 3005");
+                        curCharacteristic = "3005";
+                        Long tsLong = System.currentTimeMillis() / 1000;
+                        //just use the 7 offset for now
+                        String ts = tsLong.toString() + "07";
+                        mBleWrapper.writeDataToCharacteristic(timeZone, ts);
+
+                    }
                 }
+
                 else {
                     mBleWrapper.writeDataToCharacteristic(characteristic, curWriteValue);
                 }
@@ -257,26 +274,32 @@ public class LinkCapActivity extends AppCompatActivity implements BleWrapperUiCa
 
         //start the next characteristic write. need to change the characteristic to the other one
         if (curCharacteristic == "3000"){
-            Log.d(TAG, "changing to char 3001");
+            Log.d(TAG, "just wrote to 3000. changing to char 3001");
             curCharacteristic = "3001";
              thisChar = charKey;
         }
 
-         if (curCharacteristic == "3001"){
-            Log.d(TAG, "changing to char 3000");
+        else if (curCharacteristic == "3001"){
+            Log.d(TAG, "just wrote to 3001. changing to char 3000");
             curCharacteristic = "3000";
              thisChar = charValue;
         }
 
-        if (curCharacteristic == "3005") {
+        //this is being called twice
+        else if (curCharacteristic == "3006") {
+            //done
+            curCharacteristic = "0000";
+//            mBleWrapper.diconnect();
+
+        }
+        //instead of closing now we need to write all the schedule times
+       else if (curCharacteristic == "3005") {
             //now we need to write to 3006
             curCharacteristic = "3006";
-            mBleWrapper.diconnect();
+            thisChar = doseSchedule;
         }
-//
-//        if (curCharacteristic == "3006") {
-//
-//        }
+
+
 
         //call the next write funciton. we need to
         uiCharacteristicsDetails(mBleWrapper.getGatt(), mBleWrapper.getDevice(), mBleWrapper.getCachedService(), thisChar);

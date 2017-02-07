@@ -11,10 +11,11 @@
     <Zip>29306</Zip>
     <Label>L1</Label>
     <DosageText>USE AS DIRECTED</DosageText>
+    <NPI>1023039344</NPI>
     <NDC>123456789</NDC>
     <HOAList>
         <HOA>0800</HOA>
-        <HOA>NOON</HOA>
+        <HOA>1200</HOA>
         <HOA>1700</HOA>
     </HOAList>
 </Prescription>

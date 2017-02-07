@@ -247,95 +247,57 @@
             android:layout_weight="0.72" />
 
 
-    </LinearLayout>
+</LinearLayout>
 
-    <LinearLayout
-        android:orientation="horizontal"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:weightSum="1">
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/ndc"
-            android:layout_weight="0.29" />
+<LinearLayout
+android:orientation="horizontal"
+android:layout_width="fill_parent"
+android:layout_height="wrap_content"
+android:weightSum="1">
+<TextView
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:text="@string/ndc"
+    android:layout_weight="0.29" />
 
-        <EditText
-            android:id="@+id/textView12"
-            android:minWidth="100dip"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:background="@android:drawable/editbox_background"
-            android:layout_weight="0.66" />
-
-
-    </LinearLayout>
-
-    <LinearLayout
-        android:orientation="horizontal"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:weightSum="1">
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/HOA1"
-            android:layout_weight="0.29" />
-
-        <EditText
-            android:id="@+id/textView13"
-            android:minWidth="100dip"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:background="@android:drawable/editbox_background"
-            android:layout_weight="0.66" />
+<EditText
+    android:id="@+id/textView12"
+    android:minWidth="100dip"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:background="@android:drawable/editbox_background"
+    android:layout_weight="0.66" />
 
 
-    </LinearLayout>
-
-    <LinearLayout
-        android:orientation="horizontal"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:weightSum="1">
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/HOA2"
-            android:layout_weight="0.29" />
-
-        <EditText
-            android:id="@+id/textView14"
-            android:minWidth="100dip"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:background="@android:drawable/editbox_background"
-            android:layout_weight="0.66" />
+</LinearLayout>
 
 
-    </LinearLayout>
 
-    <LinearLayout
-        android:orientation="horizontal"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:weightSum="1">
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/HOA3"
-            android:layout_weight="0.29" />
+<LinearLayout
+android:orientation="horizontal"
+android:layout_width="fill_parent"
+android:layout_height="wrap_content"
+android:weightSum="1">
+<TextView
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:text="@string/npi"
+    android:layout_weight="0.29" />
 
-        <EditText
-            android:id="@+id/textView15"
-            android:minWidth="100dip"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:background="@android:drawable/editbox_background"
-            android:layout_weight="0.66" />
+<EditText
+    android:id="@+id/textView13"
+    android:minWidth="100dip"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:background="@android:drawable/editbox_background"
+    android:layout_weight="0.66" />
 
 
-    </LinearLayout>
+</LinearLayout>
+
+
+
+
 
 
     <!--<Button android:id="@+id/confirm"-->
