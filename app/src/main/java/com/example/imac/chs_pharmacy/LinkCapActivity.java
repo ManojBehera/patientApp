@@ -245,7 +245,7 @@ public class LinkCapActivity extends AppCompatActivity implements BleWrapperUiCa
                     else if (curCharacteristic == "0000")
                     {
                         Log.d(TAG, "why is this being called");
-                        mBleWrapper.diconnect();
+//                        mBleWrapper.diconnect();
                     }
                     else {
                         Log.d(TAG, "we are at 3005");
@@ -290,7 +290,7 @@ public class LinkCapActivity extends AppCompatActivity implements BleWrapperUiCa
         else if (curCharacteristic == "3006") {
             //done
             curCharacteristic = "0000";
-//            mBleWrapper.diconnect();
+            mBleWrapper.diconnect();
 
         }
         //instead of closing now we need to write all the schedule times

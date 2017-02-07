@@ -29,7 +29,7 @@ public class DetectBleActivity extends ListActivity {
         super.onCreate(savedInstanceState);
 
         // create BleWrapper with empty callback object except uiDeficeFound function (we need only that here)
-        mBleWrapper = new BleWrapper(this, new BleWrapperUiCallbacks.Null() {
+         mBleWrapper = new BleWrapper(this, new BleWrapperUiCallbacks.Null() {
             @Override
             public void uiDeviceFound(final BluetoothDevice device, final int rssi, final byte[] record) {
                 handleFoundDevice(device, rssi, record);
