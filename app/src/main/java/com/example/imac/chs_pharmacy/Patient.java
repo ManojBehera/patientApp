@@ -101,6 +101,22 @@ public class Patient {
         return this.patient_name;
     }
 
+    public String checkPatientData(String thisName, String thisAddress, String thisLabel, String thisCity, String thisDosage,
+                                   String thisNpi, String thisNdc, String thisQty, String thisState, String thisRefills,
+                                   String thisRxid, String thisPatid, String thisZip) {
+
+        if ((patient_name == thisName) && (address == thisAddress) && (label == thisLabel) && (city == thisCity)
+                && (dosage == thisDosage) && (NPI == thisNpi) && (ndc == thisNdc) && (quantity == thisQty)
+                && (state == thisState) && (refills == thisRefills) && (rx_id == thisRxid) && (patient_id == thisPatid) && (zip == thisZip)){
+            return "true";
+        }
+
+        else {
+            return "false";
+        }
+
+    }
+
     public void setRxid(String rxid) {
         Log.d(TAG, "setting rxid");
         rx_id = rxid;

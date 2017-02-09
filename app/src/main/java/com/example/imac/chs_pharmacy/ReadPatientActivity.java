@@ -187,28 +187,34 @@ public class ReadPatientActivity extends AppCompatActivity {
             try {
                 Log.d(TAG, "going to try looping through"+message);
 //            File fXmlFile = new File(message + ".xml");
-                StringBuilder builder = null;
-                String user = "guest";
-                String pass ="";
+//                StringBuilder builder = null;
+//                String user = "guest";
+//                String pass ="";
+//
+//                String url = "smb://fs01.hq.sfp.net/public/chs/" + message + ".xml";
+//
+//                Log.d(TAG, url);
+//
+//
+//                NtlmPasswordAuthentication auth = new NtlmPasswordAuthentication(null, user, pass); //This class stores and encrypts NTLM user credentials.
+//
+//                SmbFile sFile = new SmbFile(url, auth);
+//
+//                SmbFileInputStream fXmlFile = new SmbFileInputStream(sFile);
+//
+////                InputStream fXmlFile = sFile.getInputStream();
+//                DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
+//                DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
+//                Document doc = dBuilder.parse(fXmlFile);
 
-                String url = "smb://fs01.hq.sfp.net/public/chs/" + message + ".xml";
-
-                Log.d(TAG, url);
 
 
-                NtlmPasswordAuthentication auth = new NtlmPasswordAuthentication(null, user, pass); //This class stores and encrypts NTLM user credentials.
-
-                SmbFile sFile = new SmbFile(url, auth);
-
-                SmbFileInputStream fXmlFile = new SmbFileInputStream(sFile);
-
-//                InputStream fXmlFile = sFile.getInputStream();
+                InputStream fXmlFile = getAssets().open(message+".xml");
                 DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
                 DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
                 Document doc = dBuilder.parse(fXmlFile);
 
                 doc.getDocumentElement().normalize();
-
 
 
                 //make a list of all the prescription nodes. this will only be one.

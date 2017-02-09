@@ -5,6 +5,7 @@ import android.bluetooth.BluetoothGatt;
 import android.bluetooth.BluetoothGattCharacteristic;
 import android.bluetooth.BluetoothGattService;
 import android.content.Intent;
+import android.os.SystemClock;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -15,10 +16,18 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.UUID;
+
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
 
 import static java.util.UUID.fromString;
 
@@ -73,6 +82,7 @@ public class LinkCapActivity extends AppCompatActivity implements BleWrapperUiCa
     public BluetoothGattCharacteristic timeZone;
     public BluetoothGattCharacteristic doseSchedule;
     public BluetoothGattCharacteristic verify;
+    public BluetoothGattCharacteristic send;
 
     public BluetoothGattCharacteristic thisChar;
 
@@ -82,6 +92,7 @@ public class LinkCapActivity extends AppCompatActivity implements BleWrapperUiCa
     final static public UUID TIME_ZONE   = UUID.fromString("00003005-0000-1000-8000-00805f9b34fb");
     final static public UUID SCHEDULE   = UUID.fromString("00003006-0000-1000-8000-00805f9b34fb");
     final static public UUID VERIFY_CHAR   = UUID.fromString("00003007-0000-1000-8000-00805f9b34fb");
+    final static public UUID SEND_VALUE   = UUID.fromString("00003010-0000-1000-8000-00805f9b34fb");
 
 
 
@@ -208,6 +219,12 @@ public class LinkCapActivity extends AppCompatActivity implements BleWrapperUiCa
                         verify = ch;
                     }
 
+                    if (ch.getUuid().equals(SEND_VALUE))
+                    {
+                        Log.d(TAG,  "found 3010");
+                        send = ch;
+                    }
+
                     String uuid = ch.getUuid().toString().toLowerCase(Locale.getDefault());
                     Log.d(TAG, uuid + "characteristic");
 
@@ -253,6 +270,8 @@ public class LinkCapActivity extends AppCompatActivity implements BleWrapperUiCa
                     //now we gotta start checking values
                     else if (curCharacteristic == "3007")
                     {
+                        //instead of requesting a value, we need to write an index starting at 0
+                        //then, we need to read 3010
                         mBleWrapper.requestCharacteristicValue(verify);
                     }
                     else {
@@ -308,9 +327,22 @@ public class LinkCapActivity extends AppCompatActivity implements BleWrapperUiCa
             thisChar = doseSchedule;
         }
 
+        else if (curCharacteristic == "3007") {
+            //done. now we start checking the values
+            curCharacteristic = "3010";
+            thisChar = send;
+        }
+
+        else if (curCharacteristic == "3010") {
+            //done. now we start checking the values
+            curCharacteristic = "3007";
+            thisChar = verify;
+        }
 
 
-        //call the next write funciton. we need to
+
+
+            //call the next write funciton. we need to
         uiCharacteristicsDetails(mBleWrapper.getGatt(), mBleWrapper.getDevice(), mBleWrapper.getCachedService(), thisChar);
     }
 
@@ -322,6 +354,8 @@ public class LinkCapActivity extends AppCompatActivity implements BleWrapperUiCa
             @Override
             public void run() {
                 Log.d(TAG, "in uiDeviceConnected");
+//                SystemClock.sleep(5000);
+//                gatt.requestMtu(256);
             }
         });
     }
@@ -333,17 +367,11 @@ public class LinkCapActivity extends AppCompatActivity implements BleWrapperUiCa
             @Override
             public void run() {
                 Toast.makeText(getApplicationContext(), "Writing to cap was finished successfully!", Toast.LENGTH_LONG).show();
-            }
-
-            //after write, we need to move on to the next value
-        });
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
                 Log.d(TAG, "device has been disconnected");
-
             }
+
         });
+
     }
 
     @Override
@@ -391,10 +419,45 @@ public class LinkCapActivity extends AppCompatActivity implements BleWrapperUiCa
     {
         Log.d(TAG, "newvalueforchar");
         Log.d(TAG, strValue);
+//        String JSON_DATA = strValue;
 
         //get all the keys and values and make sure they match up with the patient model
+        JSONParser parser = new JSONParser();
+        Patient p = Patient.getInstance();
 
-        //decode json object
+        try {
+//            JSONObject obj = new JSONObject(JSON_DATA);
+            Object obj = parser.parse(strValue);
+
+            JSONObject jsonObject = (JSONObject) obj;
+            System.out.println(jsonObject);
+
+            String zip = (String) jsonObject.get("Zip");
+            String patid = (String) jsonObject.get("PatientID");
+            String rxid = (String) jsonObject.get("PrescriptionID");
+            String refills = (String) jsonObject.get("Refills");
+            String state = (String) jsonObject.get("State");
+            String qty = (String) jsonObject.get("Quantity");
+            String ndc = (String) jsonObject.get("NDC");
+            String npi = (String) jsonObject.get("NPI");
+            String dosage = (String) jsonObject.get("DosageText");
+            String city = (String) jsonObject.get("City");
+            String label = (String) jsonObject.get("Label");
+            String address = (String) jsonObject.get("Address");
+            String name = (String) jsonObject.get("Name");
+
+            if (p.checkPatientData(name, address, label, city, dosage, npi, ndc, qty, state, refills, rxid, patid, zip )
+                    == "true");
+            {
+                System.out.println("everything matches up");
+            }
+
+
+
+    }  catch (ParseException e) {
+        e.printStackTrace();
+    }
+
         mBleWrapper.diconnect();
     }
 
