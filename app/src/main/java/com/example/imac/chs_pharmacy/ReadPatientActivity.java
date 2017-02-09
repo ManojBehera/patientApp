@@ -17,13 +17,21 @@ import org.w3c.dom.NodeList;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
+import java.net.MalformedURLException;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import android.util.Log;
 
+import jcifs.smb.NtlmPasswordAuthentication;
+import jcifs.smb.SmbException;
+import jcifs.smb.SmbFile;
+import jcifs.smb.SmbFileInputStream;
+import jcifs.smb.SmbFileOutputStream;
 
 //need to create a model based on the xml. the pharmicist should be able to overwrite everything right now and save the updated data to the model
 
@@ -166,49 +174,78 @@ public class ReadPatientActivity extends AppCompatActivity {
 //        tv14=(TextView)findViewById(R.id.textView14);
 //        tv15=(TextView)findViewById(R.id.textView15);
 
-        try {
-            Log.d(TAG, "going to try looping through"+message);
+        //samba logic
+//        try{
+//            String user = "guest";
+//            String pass ="";
+//
+//            String url = "smb://fs01.hq.sfp.net/public/chs/" + message;
+////            NtlmPasswordAuthentication auth = new NtlmPasswordAuthentication(
+////                    null, user, pass);
+////            SmbFile sfile = new SmbFile(url, auth);
+
+            try {
+                Log.d(TAG, "going to try looping through"+message);
 //            File fXmlFile = new File(message + ".xml");
-            InputStream fXmlFile = getAssets().open(message+".xml");
-            DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
-            DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
-            Document doc = dBuilder.parse(fXmlFile);
+                StringBuilder builder = null;
+                String user = "guest";
+                String pass ="";
 
-            //make a list of all the prescription nodes. this will only be one.
-            NodeList rootElement = doc.getElementsByTagName("Prescription");
+                String url = "smb://fs01.hq.sfp.net/public/chs/" + message + ".xml";
 
-            //this loop should only fire once since it's going through all prescription nodes
-            for (int j = 0; j < rootElement.getLength(); j++) {
-                Log.d(TAG, "we're at the top level");
+                Log.d(TAG, url);
 
-                //get the array of all the children
-                Node dataRow = rootElement.item(j);
-                NodeList dataList = dataRow.getChildNodes();
+
+                NtlmPasswordAuthentication auth = new NtlmPasswordAuthentication(null, user, pass); //This class stores and encrypts NTLM user credentials.
+
+                SmbFile sFile = new SmbFile(url, auth);
+
+                SmbFileInputStream fXmlFile = new SmbFileInputStream(sFile);
+
+//                InputStream fXmlFile = sFile.getInputStream();
+                DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
+                DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
+                Document doc = dBuilder.parse(fXmlFile);
+
+                doc.getDocumentElement().normalize();
+
+
+
+                //make a list of all the prescription nodes. this will only be one.
+                NodeList rootElement = doc.getElementsByTagName("Prescription");
+
+                //this loop should only fire once since it's going through all prescription nodes
+                for (int j = 0; j < rootElement.getLength(); j++) {
+                    Log.d(TAG, "we're at the top level");
+
+                    //get the array of all the children
+                    Node dataRow = rootElement.item(j);
+                    NodeList dataList = dataRow.getChildNodes();
 //                Node dataNode = rootElement.item(j);
 
-                //go through each item. will need to check for more children
-                for (int i = 0; i < dataList.getLength(); i++) {
-                    Node detail = dataList.item(i);
+                    //go through each item. will need to check for more children
+                    for (int i = 0; i < dataList.getLength(); i++) {
+                        Node detail = dataList.item(i);
 
-                    if (detail.getNodeName().equals("HOAList")) {
-                        Log.d(TAG, "we in da list");
+                        if (detail.getNodeName().equals("HOAList")) {
+                            Log.d(TAG, "we in da list");
 
-                        NodeList HOAList = detail.getChildNodes();
-                        for (int k = 0; k < HOAList.getLength(); k++) {
-                           Node thistime = HOAList.item(k);
-                            String context = thistime.getTextContent();
-                            //wtf why is it looping through blanks
-                            if (k % 2 == 0) {
-                                // even
-                            }
-                            else {
-                                Log.d(TAG, context+k);
+                            NodeList HOAList = detail.getChildNodes();
+                            for (int k = 0; k < HOAList.getLength(); k++) {
+                                Node thistime = HOAList.item(k);
+                                String context = thistime.getTextContent();
+                                //wtf why is it looping through blanks
+                                if (k % 2 == 0) {
+                                    // even
+                                }
+                                else {
+                                    Log.d(TAG, context+k);
 //                                HOAs.add(context);
-                                Patient p = Patient.getInstance();
-                                p.saveScheduleTime(context);
+                                    Patient p = Patient.getInstance();
+                                    p.saveScheduleTime(context);
+                                }
                             }
-                    }
-                    }
+                        }
 //                    tv13.setText(HOAs.get(0));
 //                    tv14.setText(HOAs.get(1));
 //                    tv15.setText(HOAs.get(2));
@@ -217,57 +254,60 @@ public class ReadPatientActivity extends AppCompatActivity {
 //                        Log.d(TAG, hoa);
 //                    }
 
-                    if (detail.getNodeName().equals("Name")) {
-                       String letter = detail.getTextContent();
-                        Log.d(TAG, letter);
-                    }
+                        if (detail.getNodeName().equals("Name")) {
+                            String letter = detail.getTextContent();
+                            Log.d(TAG, letter);
+                        }
 
-                    if (detail.getNodeName().equals("PrescriptionID")) {
-                        tv.setText(detail.getTextContent());
+                        if (detail.getNodeName().equals("PrescriptionID")) {
+                            tv.setText(detail.getTextContent());
+
+                        }
+                        if (detail.getNodeName().equals("Name")) {
+                            tv2.setText(detail.getTextContent());
+                        }
+                        if (detail.getNodeName().equals("PatientID")) {
+                            tv3.setText(detail.getTextContent());
+                        }
+                        if (detail.getNodeName().equals("Quantity")) {
+                            tv4.setText(detail.getTextContent());
+                        }
+                        if (detail.getNodeName().equals("Refills")) {
+                            tv5.setText(detail.getTextContent());
+                        }
+                        if (detail.getNodeName().equals("Address")) {
+                            tv6.setText(detail.getTextContent());
+                        }
+                        if (detail.getNodeName().equals("City")) {
+                            tv7.setText(detail.getTextContent());
+                        }
+                        if (detail.getNodeName().equals("State")) {
+                            tv8.setText(detail.getTextContent());
+                        }
+                        if (detail.getNodeName().equals("Zip")) {
+                            tv9.setText(detail.getTextContent());
+                        }
+                        if (detail.getNodeName().equals("Label")) {
+                            tv10.setText(detail.getTextContent());
+                        }
+                        if (detail.getNodeName().equals("DosageText")) {
+                            tv11.setText(detail.getTextContent());
+                        }
+                        if (detail.getNodeName().equals("NDC")) {
+                            tv12.setText(detail.getTextContent());
+                        }
+                        if (detail.getNodeName().equals("NPI")) {
+                            tv13.setText(detail.getTextContent());
+                        }
 
                     }
-                    if (detail.getNodeName().equals("Name")) {
-                        tv2.setText(detail.getTextContent());
-                    }
-                    if (detail.getNodeName().equals("PatientID")) {
-                        tv3.setText(detail.getTextContent());
-                    }
-                    if (detail.getNodeName().equals("Quantity")) {
-                        tv4.setText(detail.getTextContent());
-                    }
-                    if (detail.getNodeName().equals("Refills")) {
-                        tv5.setText(detail.getTextContent());
-                    }
-                    if (detail.getNodeName().equals("Address")) {
-                        tv6.setText(detail.getTextContent());
-                    }
-                    if (detail.getNodeName().equals("City")) {
-                        tv7.setText(detail.getTextContent());
-                    }
-                    if (detail.getNodeName().equals("State")) {
-                        tv8.setText(detail.getTextContent());
-                    }
-                    if (detail.getNodeName().equals("Zip")) {
-                        tv9.setText(detail.getTextContent());
-                    }
-                    if (detail.getNodeName().equals("Label")) {
-                        tv10.setText(detail.getTextContent());
-                    }
-                    if (detail.getNodeName().equals("DosageText")) {
-                        tv11.setText(detail.getTextContent());
-                    }
-                    if (detail.getNodeName().equals("NDC")) {
-                        tv12.setText(detail.getTextContent());
-                    }
-                    if (detail.getNodeName().equals("NPI")) {
-                        tv13.setText(detail.getTextContent());
-                    }
-
                 }
-                }
 
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
 
-}}
+}
+
+}
+

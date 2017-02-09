@@ -41,7 +41,11 @@ public class MainActivity extends Activity implements OnClickListener {
         contentTxt = (TextView) findViewById(R.id.scan_content);
         scanBtn.setOnClickListener(this);
 
+
+
     }
+
+
 
 
     public void onClick(View v){

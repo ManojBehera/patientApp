@@ -27,73 +27,92 @@ import java.util.UUID;
 
 public class BleWrapper {
     public static final String TAG = "BleWrapper";
-	/* defines (in milliseconds) how often RSSI should be updated */
+    /* defines (in milliseconds) how often RSSI should be updated */
     private static final int RSSI_UPDATE_TIME_INTERVAL = 1500; // 1.5 seconds
 
     /* callback object through which we are returning results to the caller */
     private BleWrapperUiCallbacks mUiCallback = null;
     /* define NULL object for UI callbacks */
-    private static final BleWrapperUiCallbacks NULL_CALLBACK = new BleWrapperUiCallbacks.Null(); 
-    
+    private static final BleWrapperUiCallbacks NULL_CALLBACK = new BleWrapperUiCallbacks.Null();
+
     /* creates BleWrapper object, set its parent activity and callback object */
     public BleWrapper(Activity parent, BleWrapperUiCallbacks callback) {
-    	this.mParent = parent;
-    	mUiCallback = callback;
-    	if(mUiCallback == null) mUiCallback = NULL_CALLBACK;
+        this.mParent = parent;
+        mUiCallback = callback;
+        if (mUiCallback == null) mUiCallback = NULL_CALLBACK;
     }
 
-    public BluetoothManager getManager() { return mBluetoothManager; }
-    public BluetoothAdapter getAdapter() { return mBluetoothAdapter; }
-    public BluetoothDevice getDevice()  {
+    public BluetoothManager getManager() {
+        return mBluetoothManager;
+    }
+
+    public BluetoothAdapter getAdapter() {
+        return mBluetoothAdapter;
+    }
+
+    public BluetoothDevice getDevice() {
         return mBluetoothDevice;
 
     }
-    public BluetoothGatt getGatt()    { Log.d(TAG, "get gatt"); return mBluetoothGatt;  }
-    public BluetoothGattService getCachedService() { return mBluetoothSelectedService; }
-    public List<BluetoothGattService> getCachedServices() { return mBluetoothGattServices; }
-    public boolean                    isConnected() { return mConnected; }
 
-	/* run test and check if this device has BT and BLE hardware available */
-	public boolean checkBleHardwareAvailable() {
+    public BluetoothGatt getGatt() {
+        Log.d(TAG, "get gatt");
+        return mBluetoothGatt;
+    }
 
-		// First check general Bluetooth Hardware:
-		// get BluetoothManager...
-		final BluetoothManager manager = (BluetoothManager) mParent.getSystemService(Context.BLUETOOTH_SERVICE);
-		if(manager == null) return false;
-		// .. and then get adapter from manager
-		final BluetoothAdapter adapter = manager.getAdapter();
-		if(adapter == null) return false;
-		
-		// and then check if BT LE is also available
-		boolean hasBle = mParent.getPackageManager().hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE);
-		return hasBle;
-	}    
+    public BluetoothGattService getCachedService() {
+        return mBluetoothSelectedService;
+    }
 
-	
-	/* before any action check if BT is turned ON and enabled for us 
+    public List<BluetoothGattService> getCachedServices() {
+        return mBluetoothGattServices;
+    }
+
+    public boolean isConnected() {
+        return mConnected;
+    }
+
+    /* run test and check if this device has BT and BLE hardware available */
+    public boolean checkBleHardwareAvailable() {
+
+        // First check general Bluetooth Hardware:
+        // get BluetoothManager...
+        final BluetoothManager manager = (BluetoothManager) mParent.getSystemService(Context.BLUETOOTH_SERVICE);
+        if (manager == null) return false;
+        // .. and then get adapter from manager
+        final BluetoothAdapter adapter = manager.getAdapter();
+        if (adapter == null) return false;
+
+        // and then check if BT LE is also available
+        boolean hasBle = mParent.getPackageManager().hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE);
+        return hasBle;
+    }
+
+
+    /* before any action check if BT is turned ON and enabled for us
 	 * call this in onResume to be always sure that BT is ON when Your
 	 * application is put into the foreground */
-	public boolean isBtEnabled() {
-		final BluetoothManager manager = (BluetoothManager) mParent.getSystemService(Context.BLUETOOTH_SERVICE);
-		if(manager == null) return false;
-		
-		final BluetoothAdapter adapter = manager.getAdapter();
-		if(adapter == null) return false;
-		
-		return adapter.isEnabled();
-	}
-	
-	/* start scanning for BT LE devices around */
-	public void startScanning() {
+    public boolean isBtEnabled() {
+        final BluetoothManager manager = (BluetoothManager) mParent.getSystemService(Context.BLUETOOTH_SERVICE);
+        if (manager == null) return false;
+
+        final BluetoothAdapter adapter = manager.getAdapter();
+        if (adapter == null) return false;
+
+        return adapter.isEnabled();
+    }
+
+    /* start scanning for BT LE devices around */
+    public void startScanning() {
         ScanSettings.Builder builder = new ScanSettings.Builder();
         mBluetoothAdapter.getBluetoothLeScanner().startScan(null, builder.build(), mDeviceFoundCallback);
-	}
-	
-	/* stops current scanning */
-	public void stopScanning() {
-		mBluetoothAdapter.getBluetoothLeScanner().stopScan(mDeviceFoundCallback);
-	}
-	
+    }
+
+    /* stops current scanning */
+    public void stopScanning() {
+        mBluetoothAdapter.getBluetoothLeScanner().stopScan(mDeviceFoundCallback);
+    }
+
     /* initialize BLE and get BT Manager & Adapter */
     public boolean initialize() {
         if (mBluetoothManager == null) {
@@ -103,25 +122,24 @@ public class BleWrapper {
             }
         }
 
-        if(mBluetoothAdapter == null) mBluetoothAdapter = mBluetoothManager.getAdapter();
+        if (mBluetoothAdapter == null) mBluetoothAdapter = mBluetoothManager.getAdapter();
         if (mBluetoothAdapter == null) {
             return false;
         }
-        return true;    	
+        return true;
     }
 
     /* connect to the device with specified address */
     public boolean connect(final String deviceAddress) {
         if (mBluetoothAdapter == null || deviceAddress == null) return false;
         mDeviceAddress = deviceAddress;
-        
+
         // check if we need to connect from scratch or just reconnect to previous device
-        if(mBluetoothGatt != null && mBluetoothGatt.getDevice().getAddress().equals(deviceAddress)) {
-        	// just reconnect
-        	return mBluetoothGatt.connect();
-        }
-        else {
-        	// connect from scratch
+        if (mBluetoothGatt != null && mBluetoothGatt.getDevice().getAddress().equals(deviceAddress)) {
+            // just reconnect
+            return mBluetoothGatt.connect();
+        } else {
+            // connect from scratch
             // get BluetoothDevice object for specified address
             mBluetoothDevice = mBluetoothAdapter.getRemoteDevice(mDeviceAddress);
             if (mBluetoothDevice == null) {
@@ -129,94 +147,127 @@ public class BleWrapper {
                 return false;
             }
             // connect with remote device
-        	mBluetoothGatt = mBluetoothDevice.connectGatt(mParent, false, mBleCallback);
+            mBluetoothGatt = mBluetoothDevice.connectGatt(mParent, false, mBleCallback);
         }
         return true;
-    }  
-    
+    }
+
     /* disconnect the device. It is still possible to reconnect to it later with this Gatt client */
     public void diconnect() {
-    	if(mBluetoothGatt != null) mBluetoothGatt.disconnect();
-    	 mUiCallback.uiDeviceDisconnected(mBluetoothGatt, mBluetoothDevice);
+        if (mBluetoothGatt != null) mBluetoothGatt.disconnect();
+        mUiCallback.uiDeviceDisconnected(mBluetoothGatt, mBluetoothDevice);
     }
 
     /* close GATT client completely */
     public void close() {
-    	if(mBluetoothGatt != null) mBluetoothGatt.close();
-    	mBluetoothGatt = null;
-    }    
+        if (mBluetoothGatt != null) mBluetoothGatt.close();
+        mBluetoothGatt = null;
+    }
 
     /* request new RSSi value for the connection*/
     public void readPeriodicalyRssiValue(final boolean repeat) {
-    	mTimerEnabled = repeat;
-    	// check if we should stop checking RSSI value
-    	if(mConnected == false || mBluetoothGatt == null || mTimerEnabled == false) {
-    		mTimerEnabled = false;
-    		return;
-    	}
-    	
-    	mTimerHandler.postDelayed(new Runnable() {
-			@Override
-			public void run() {
-				if(mBluetoothGatt == null ||
-				   mBluetoothAdapter == null ||
-				   mConnected == false)
-				{
-					mTimerEnabled = false;
-					return;
-				}
-				
-				// request RSSI value
-				mBluetoothGatt.readRemoteRssi();
-				// add call it once more in the future
-				readPeriodicalyRssiValue(mTimerEnabled);
-			}
-    	}, RSSI_UPDATE_TIME_INTERVAL);
-    }    
-    
+        mTimerEnabled = repeat;
+        // check if we should stop checking RSSI value
+        if (mConnected == false || mBluetoothGatt == null || mTimerEnabled == false) {
+            mTimerEnabled = false;
+            return;
+        }
+
+        mTimerHandler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                if (mBluetoothGatt == null ||
+                        mBluetoothAdapter == null ||
+                        mConnected == false) {
+                    mTimerEnabled = false;
+                    return;
+                }
+
+                // request RSSI value
+                mBluetoothGatt.readRemoteRssi();
+                // add call it once more in the future
+                readPeriodicalyRssiValue(mTimerEnabled);
+            }
+        }, RSSI_UPDATE_TIME_INTERVAL);
+    }
+
     /* starts monitoring RSSI value */
     public void startMonitoringRssiValue() {
-    	readPeriodicalyRssiValue(true);
+        readPeriodicalyRssiValue(true);
     }
-    
+
     /* stops monitoring of RSSI value */
     public void stopMonitoringRssiValue() {
-    	readPeriodicalyRssiValue(false);
+        readPeriodicalyRssiValue(false);
     }
-    
+
     /* request to discover all services available on the remote devices
      * results are delivered through callback object */
     public void startServicesDiscovery() {
-    	if(mBluetoothGatt != null) mBluetoothGatt.discoverServices();
+        if (mBluetoothGatt != null) mBluetoothGatt.discoverServices();
     }
-    
+
     /* gets services and calls UI callback to handle them
      * before calling getServices() make sure service discovery is finished! */
     public void getSupportedServices() {
-    	if(mBluetoothGattServices != null && mBluetoothGattServices.size() > 0) mBluetoothGattServices.clear();
-    	// keep reference to all services in local array:
-        if(mBluetoothGatt != null) mBluetoothGattServices = mBluetoothGatt.getServices();
-        
+        if (mBluetoothGattServices != null && mBluetoothGattServices.size() > 0)
+            mBluetoothGattServices.clear();
+        // keep reference to all services in local array:
+        if (mBluetoothGatt != null) mBluetoothGattServices = mBluetoothGatt.getServices();
+
         mUiCallback.uiAvailableServices(mBluetoothGatt, mBluetoothDevice, mBluetoothGattServices);
     }
-    
+
     /* get all characteristic for particular service and pass them to the UI callback */
     public void getCharacteristicsForService(final BluetoothGattService service) {
-    	if(service == null) return;
-    	List<BluetoothGattCharacteristic> chars = null;
-    	
-    	chars = service.getCharacteristics();   	
-    	mUiCallback.uiCharacteristicForService(mBluetoothGatt, mBluetoothDevice, service, chars);
-    	// keep reference to the last selected service
-    	mBluetoothSelectedService = service;
+        if (service == null) return;
+        List<BluetoothGattCharacteristic> chars = null;
+
+        chars = service.getCharacteristics();
+        mUiCallback.uiCharacteristicForService(mBluetoothGatt, mBluetoothDevice, service, chars);
+        // keep reference to the last selected service
+        mBluetoothSelectedService = service;
     }
 
     /* request to fetch newest value stored on the remote device for particular characteristic */
+    //first step in reading a characteristic
     public void requestCharacteristicValue(BluetoothGattCharacteristic ch) {
         if (mBluetoothAdapter == null || mBluetoothGatt == null) return;
-        
+
         mBluetoothGatt.readCharacteristic(ch);
         // new value available will be notified in Callback Object
+    }
+
+    //final step to read
+    public void getCharacteristicValue(BluetoothGattCharacteristic ch) {
+        if (mBluetoothAdapter == null || mBluetoothGatt == null || ch == null) return;
+
+        byte[] rawValue = ch.getValue();
+        String strValue = null;
+        int intValue = 0;
+        intValue = 0;
+        if (rawValue.length > 0) intValue = (int) rawValue[0];
+        if (rawValue.length > 1) intValue = intValue + ((int) rawValue[1] << 8);
+        if (rawValue.length > 2) intValue = intValue + ((int) rawValue[2] << 8);
+        if (rawValue.length > 3) intValue = intValue + ((int) rawValue[3] << 8);
+
+        if (rawValue.length > 0) {
+            final StringBuilder stringBuilder = new StringBuilder(rawValue.length);
+            for (byte byteChar : rawValue) {
+                stringBuilder.append(String.format("%c", byteChar));
+            }
+            strValue = stringBuilder.toString();
+        }
+
+        String timestamp = new SimpleDateFormat("yyyy.MM.dd HH:mm:ss.SSS").format(new Date());
+        mUiCallback.uiNewValueForCharacteristic(mBluetoothGatt,
+                mBluetoothDevice,
+                mBluetoothSelectedService,
+                ch,
+                strValue,
+                intValue,
+                rawValue,
+                timestamp);
     }
 
 
@@ -333,28 +384,20 @@ public class BleWrapper {
             }
         }
 
-//        @Override
-//        public void onCharacteristicRead(BluetoothGatt gatt,
-//                                         BluetoothGattCharacteristic characteristic,
-//                                         int status)
-//        {
-//        	// we got response regarding our request to fetch characteristic value
-//            if (status == BluetoothGatt.GATT_SUCCESS) {
-//            	// and it success, so we can get the value
-//            	getCharacteristicValue(characteristic);
-//            }
-//        }
+        @Override
+        //second method called when reading.
+        public void onCharacteristicRead(BluetoothGatt gatt,
+                                         BluetoothGattCharacteristic characteristic,
+                                         int status)
+        {
+        	// we got response regarding our request to fetch characteristic value
+            if (status == BluetoothGatt.GATT_SUCCESS) {
+            	// and it success, so we can get the value
+            	getCharacteristicValue(characteristic);
+            }
+        }
 
-//        @Override
-//        public void onCharacteristicChanged(BluetoothGatt gatt,
-//                                            BluetoothGattCharacteristic characteristic)
-//        {
-//        	// characteristic's value was updated due to enabled notification, lets get this value
-//        	// the value itself will be reported to the UI inside getCharacteristicValue
-//        	getCharacteristicValue(characteristic);
-//        	// also, notify UI that notification are enabled for particular characteristic
-//        	mUiCallback.uiGotNotification(mBluetoothGatt, mBluetoothDevice, mBluetoothSelectedService, characteristic);
-//        }
+
         
         @Override
         public void onCharacteristicWrite(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic, int status) {

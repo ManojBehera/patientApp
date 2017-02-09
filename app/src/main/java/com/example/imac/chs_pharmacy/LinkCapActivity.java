@@ -72,6 +72,7 @@ public class LinkCapActivity extends AppCompatActivity implements BleWrapperUiCa
     public BluetoothGattCharacteristic charValue;
     public BluetoothGattCharacteristic timeZone;
     public BluetoothGattCharacteristic doseSchedule;
+    public BluetoothGattCharacteristic verify;
 
     public BluetoothGattCharacteristic thisChar;
 
@@ -80,6 +81,7 @@ public class LinkCapActivity extends AppCompatActivity implements BleWrapperUiCa
     final static public UUID CREATE_VALUE   = UUID.fromString("00003000-0000-1000-8000-00805f9b34fb");
     final static public UUID TIME_ZONE   = UUID.fromString("00003005-0000-1000-8000-00805f9b34fb");
     final static public UUID SCHEDULE   = UUID.fromString("00003006-0000-1000-8000-00805f9b34fb");
+    final static public UUID VERIFY_CHAR   = UUID.fromString("00003007-0000-1000-8000-00805f9b34fb");
 
 
 
@@ -200,6 +202,12 @@ public class LinkCapActivity extends AppCompatActivity implements BleWrapperUiCa
                         doseSchedule = ch;
                     }
 
+                    if (ch.getUuid().equals(VERIFY_CHAR))
+                    {
+                        Log.d(TAG,  "found 3007");
+                        verify = ch;
+                    }
+
                     String uuid = ch.getUuid().toString().toLowerCase(Locale.getDefault());
                     Log.d(TAG, uuid + "characteristic");
 
@@ -242,10 +250,10 @@ public class LinkCapActivity extends AppCompatActivity implements BleWrapperUiCa
                         scheduleTimeString = p.getScheduleTimes();
                         mBleWrapper.writeDataToCharacteristic(characteristic, scheduleTimeString);
                     }
-                    else if (curCharacteristic == "0000")
+                    //now we gotta start checking values
+                    else if (curCharacteristic == "3007")
                     {
-                        Log.d(TAG, "why is this being called");
-//                        mBleWrapper.diconnect();
+                        mBleWrapper.requestCharacteristicValue(verify);
                     }
                     else {
                         Log.d(TAG, "we are at 3005");
@@ -288,9 +296,9 @@ public class LinkCapActivity extends AppCompatActivity implements BleWrapperUiCa
 
         //this is being called twice
         else if (curCharacteristic == "3006") {
-            //done
-            curCharacteristic = "0000";
-            mBleWrapper.diconnect();
+            //done. now we start checking the values
+            curCharacteristic = "3007";
+//            mBleWrapper.diconnect();
 
         }
         //instead of closing now we need to write all the schedule times
@@ -371,7 +379,7 @@ public class LinkCapActivity extends AppCompatActivity implements BleWrapperUiCa
     }
 
 
-    //called when a new characteristic is finished writing?
+    //called when a new characteristic is finished reading. this should have our json object to parse through
     public void uiNewValueForCharacteristic(final BluetoothGatt gatt,
                                             final BluetoothDevice device,
                                             final BluetoothGattService service,
@@ -383,8 +391,12 @@ public class LinkCapActivity extends AppCompatActivity implements BleWrapperUiCa
     {
         Log.d(TAG, "newvalueforchar");
         Log.d(TAG, strValue);
-    }
 
+        //get all the keys and values and make sure they match up with the patient model
+
+        //decode json object
+        mBleWrapper.diconnect();
+    }
 
 
     //this should be called after writedatatocharacteristic
