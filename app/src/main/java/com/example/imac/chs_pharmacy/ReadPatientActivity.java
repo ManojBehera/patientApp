@@ -174,15 +174,6 @@ public class ReadPatientActivity extends AppCompatActivity {
 //        tv14=(TextView)findViewById(R.id.textView14);
 //        tv15=(TextView)findViewById(R.id.textView15);
 
-        //samba logic
-//        try{
-//            String user = "guest";
-//            String pass ="";
-//
-//            String url = "smb://fs01.hq.sfp.net/public/chs/" + message;
-////            NtlmPasswordAuthentication auth = new NtlmPasswordAuthentication(
-////                    null, user, pass);
-////            SmbFile sfile = new SmbFile(url, auth);
 
             try {
                 Log.d(TAG, "going to try looping through"+message);
